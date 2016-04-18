@@ -1,0 +1,101 @@
+<html>
+<head>
+<!-- header code taken from lecture notes -->
+<!-- Load the d3 library. -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<style>
+/* put a border around the svg element so we can see the coordinate system better. */
+body { font-family: "Open Sans"; } div { margin: auto; padding: auto; }
+svg { margin: 0; }
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+
+}
+.axis text {
+    font-family: sans-serif;
+    font-size: 6px;
+}
+
+
+
+</style>
+</head>
+<body>
+
+	<p>
+	<br>
+	<div id="mapWorld"></div>
+	<div id="mapAfrica"></div>
+
+
+
+	<script>
+
+	//skeleton of code from notes in class 021916
+
+		var width = window.innerWidth,
+		    height = window.innerHeight * 1.2;
+
+		// A projection is a particular type of scale, that maps
+		// a pair of LONGITUDE, LATITUDE coordinates (NOT the other
+		// way around) to a point in pixel space.
+		var projection = d3.geo.mercator()
+							.translate([width / 2, (3 * height) / 4.5])
+							.scale((width + 1) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
+		// Look at the documentation https://github.com/mbostock/d3/wiki/Geo-Projections
+		// for different projections and ways to change the 
+		// zoom and center of the projection. 
+
+		// This function will convert a set of coordinates
+		//  into a <path> attribute.
+		var path = d3.geo.path().projection(projection);
+			
+		var svg = d3.select("#mapWorld").append("svg")
+		    .attr("width",  width)
+		    .attr("height", height)
+		    .attr("id","worldmap")
+		var svg2 = d3.select("#mapAfrica").append("svg")
+		    .attr("width",  width/2)
+		    .attr("height", height/2)
+		    .attr("id","mapAfrica")
+		var gAfrica = svg.append("g");
+
+		var africanCountries = 
+		
+
+		
+
+		// Get a JSON file containing coordinates of 
+		//  countries and landmasses. This is from an 
+		//  example provided by Mike Bostock.
+		//d3.json("world-50m.json", function(error, world) {
+		d3.json("data/AfricanCountries.json", function(error1, userData) {
+			console.log(userData);
+			var countries=[];
+			if (error1) { return console.log(error1); }			
+			userData.forEach(function(x){
+				countries.push(x.Name);
+			});
+			console.log(countries);
+
+		});
+	
+		console.log("after json");
+
+
+
+
+
+
+
+	</script>
+
+
+	</p>
+
+</body>
+</html>
