@@ -21,8 +21,8 @@
         div {
             margin: auto;
             padding: auto;
-            overflow:auto;
         }
+
         
         svg {
             margin: 0;
@@ -405,7 +405,7 @@
                             d3.selectAll("circle").remove();
                             g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
 
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:0.6");
+                            d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         });
                 })
@@ -416,7 +416,7 @@
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
                         .on("click",function(){      
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:0.6");
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         });
                     
