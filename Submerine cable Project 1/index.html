@@ -21,6 +21,7 @@
         div {
             margin: auto;
             padding: auto;
+            overflow:auto;
         }
         
         svg {
@@ -86,58 +87,41 @@
             and many telephone companies have begun to adopt it in place of traditional telephone lines.</p>
     </div>
     <div id="mapWorld" style="text-align: center;"></div>
-    <div id="Africa" style="
-        background-color: rgb(24, 33, 87);
-        background-size: 100%;
-        margin-left: 0%;
-        margin-right: 0%;
-        padding-top: 20px;
-        padding-bottom: 30px;
-        padding-right: 50px;
-        padding-left: 50px;">
-        <h2>Fiber Optics in Africa</h2>
-        <!-- Information from http://www.bbc.com/news/business-32079649 -->
-        <p>In recent years, network providers and fiber optic companies have taken advantage of expansion opportunities in Africa,
-            building new cables and growing their customer base. Despite this growth, however, Africa remains one of the
-            least connected continents and many wonder if Fiber Optics is the best solution for the continent due to its
-            high cost. The implementation of new cables in coming years will determine the future of the technology on the
-            continent.
-        </p>
-    </div>
+    
     <br>
 
-    <div style="width:100%; text-align:center;">
-        <div id="mapAfrica" style="float:left; min-width:50%;">
-            <h3>Fiber Optic Cables in Africa</h3></div>
-        <div id="chart1" style="float:right; min-width:50%;">
-            <h3>Internet Penetration in Africa</h3></div>
-    </div>
+  
 
     <script>
         //skeleton of code from notes in class 021916
 
         var width = window.innerWidth,
-        height = width*.85;
+        height = window.innerHeight;
 
 		// A projection is a particular type of scale, that maps
 		// a pair of LONGITUDE, LATITUDE coordinates (NOT the other
 		// way around) to a point in pixel space.
-        var projection = d3.geo.orthographic()
+       var pi = d3.scale.linear()
+                        .domain([0, width])
+                        .range([-180, 180]);
+
+        var theta = d3.scale.linear()
+                        .domain([0, height])
+                        .range([90, -90]);
+        var projection = d3.geo.mercator()
             .translate([width / 2, (3 * height) / 4.5])
-		var projection = d3.geo.orthographic()
-            .translate([width / 2, (3 * height) / 4.5])
+            .scale((width ) / 2 / Math.PI);                
+		var projection2 = d3.geo.mercator()
+            .translate([(width *1.5) , (3 * height) / 4.5])
             .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
-            var projectionAfrica = d3.geo.mercator()
-            .translate([width / 4, (height) / 2])
-            .center([18.55,1])  
-            .scale((width ) /3);
-							
+     							
 		var path = d3.geo.path().projection(projection);
-		var pathAfrica = d3.geo.path().projection(projectionAfrica);
+        var path2 = d3.geo.path().projection(projection2);
+
 
 		var svg = d3.select("#mapWorld")
             .append("svg")
-                .attr("width",  width)
+                .attr("width",  width*2)
                 .attr("height", height)
                 .attr("id","worldmap");
 		var g = svg.append("g");
@@ -148,35 +132,14 @@
                 .style("font-size", height*.03)
                 .style("color", "rgb(24, 33, 87)")
                 .text("Fiber Optic Cables Throughout the World");
-
-
-		 //adding legend line for meaning of lines
-        g.append("line")
-            .attr("x1",-140+width/2)
-            .attr("y1",height*.90)
-            .attr("x2",width/2 )
-            .attr("y2",height*.90)
-            .style("stroke","orange")
-            .style("stroke-width",4);
-        g.append("text")
-            .attr("x",-140+width/2)
-            .attr("y",height*.89)
-            .style("font-family", "Archivo Narrow")
-            .style("font-size",height/65)
-            .text("Cables Before 2010");
-        g.append("line")
-            .attr("x1",5+width/2)
-            .attr("y1",height*.90)
-            .attr("x2",145+width/2 )
-            .attr("y2",height*.90)
-            .style("stroke","#00B24C")
-            .style("stroke-width",4);
-        g.append("text")
-            .attr("x",10+width/2)
-            .style("font-family", "Archivo Narrow")
-            .attr("y",height*.89)
-            .style("font-size",height/65)
-            .text("Cables After 2010");
+        var g2 = svg.append("g");
+        
+        //allow to double click and zoom out
+        svg.on("dblclick",function(){ 
+            svg.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
+            
+        });
+	
 
 		//adding legend for meaning of opacity in worldmap
 
@@ -236,121 +199,15 @@
             .text("Internet Penetration Per Capita");
 		//done with adding world legend
 
-		// console.log(width);
-		var svg2 = d3.select("#mapAfrica").append("svg")
-            .attr("width",  width/2.05)
-            .attr("height", height)
-            .attr("id","mapAfrica");
-
-		// svg2.append("text")
-		// 	.attr("text-anchor", "middle")
-		// 	.attr("transform", "translate("+ (width*1/4) +"," + 60 +")")
-		// 	.style("font-family", "Archivo Black")
-		// 	.style("font-size", height*.03)
-		// 	.style("color", "rgb(24, 33, 87)")
-		// 	.text("Fiber Optic Cables in Africa");
-		var gAfrica = svg2.append("g");
-
-		var svg3 = d3.select("#chart1")
-            .append("svg")
-                .attr("width",  width/2.05)
-                .attr("height", width/2.05*1.8)
-                .attr("id","chart1");
-		var gAfrica = svg2.append("g");
-
-		 //adding legend line for meaning of lines in africaMap
-        gAfrica.append("line")
-            .attr("x1",-140+width/4)
-            .attr("y1",height*.87)
-            .attr("x2",width/4 )
-            .attr("y2",height*.87)
-            .style("stroke","orange")
-            .style("stroke-width",4);
-        gAfrica.append("text")
-            .attr("x",-140+width/4)
-            .attr("y",height*.86)
-            .style("font-family", "Archivo Narrow")
-            .style("font-size",height/65)
-            .text("Cables Before 2010");
-        gAfrica.append("line")
-            .attr("x1",5+width/4)
-            .attr("y1",height*.87)
-            .attr("x2",145+width/4 )
-            .attr("y2",height*.87)
-            .style("stroke","#00B24C")
-            .style("stroke-width",4);
-        gAfrica.append("text")
-            .attr("x",10+width/4)
-            .attr("y",height*.86)
-            .style("font-family", "Archivo Narrow")
-            .style("font-size",height/65)
-            .text("Cables After 2010");
-            
-		//adding legend for meaning of opacity in africaMap
-
-		var numbColors = 10;
-		svg2.append("g")
-		    .append("defs")
-		    .append("linearGradient")
-                .attr("id", "legendGradient2")
-                .attr("x1", "0%")
-                .attr("x2", "100%")
-                .attr("y1", "0%")
-                .attr("y2", "0%");
-		svg2.append("rect")
-            .attr("width", width/4)
-            .attr("height", height/25)
-            .attr("stroke", "grey")
-			.attr("transform", "translate("+ (width*1/4 - width/8) +"," + (height*.90) +")")
-			.style("fill","url(#legendGradient2)")
-			.attr("rx", 10)
-			.attr("ry", 10);
-
-        var opacities = [];
-        for (var i = 0; i < numbColors; i++) {
-            var opacity = 100/(numbColors-1)*i/100;
-            var offset = 1/(numbColors-1) * i;
-            opacities.push({"off": offset, "op": opacity});
-        }
-
-		var stops = d3.select('#legendGradient2').selectAll('stop')
-		.data(opacities);
-
-		stops.enter().append('stop');
-		stops.attr('offset', function(d) { return d.off; })
-		    .attr('stop-color', "purple")
-		    .attr('stop-opacity',function(d) { return d.op; });
 		
-		svg2.append("text")
-            .attr("class", "legendText")
-            .attr("x", (width*1/4 - width/8) - 25)
-            .attr("y", (height*.90) + height/40)
-            .style("font-family", "Archivo Narrow")
-            .text("0%");
-
-		svg2.append("text")
-            .attr("class", "legendText")
-            .attr("x", (width*1/4 - width/8) + width/4 + 5)
-            .attr("y", (height*.90) + height/40)
-            .style("font-family", "Archivo Narrow")
-            .text("100%");
-		svg2.append("text")
-            .attr("class", "legendText")
-            .attr("x", width*1/4)
-            .attr("text-anchor", "middle")
-            .attr("y", (height*.89))
-            .style("font-family", "Archivo Narrow")
-            .style("font-size",height/65)
-            .text("Internet Penetration Per Capita");
-		//done with adding africa legend
 
 		var opacityScale = d3.scale.log().domain([1,2]).range([0.05,1]);
 
-		var africanCountries =[];
-		var africanCountriesString = "Algeria,Angola,Benin,Botswana,Burkina Faso,Burundi,Cape Verde,Cameroon,Central African Republic,Chad,Comoros,Cote d'Ivoire,Congo,Côte d'Ivoire,Djibouti,Egypt,Equatorial Guinea,Eritrea,Ethiopia,Gabon,Gambia,Ghana,Guinea,Guinea-Bissau,Kenya,Lesotho,Liberia,Libya,Madagascar,Malawi,Mali,Mauritania,Mauritius,Morocco,Mozambique,Namibia,Niger,Nigeria,Rwanda,Sao Tome and Principe,Senegal,Seychelles,Sierra Leone,Somalia,South Africa,South Sudan,Sudan,Swaziland,Togo,Tunisia,Uganda,Western Sahara,Zambia,Zimbabwe";
-		africanCountries = africanCountriesString.split(",");
-		africanCountries.push("Congo, the Democratic Republic of the","Tanzania, United Republic of");
-		var africanInternetUsers = [];
+		// var africanCountries =[];
+		// var africanCountriesString = "Algeria,Angola,Benin,Botswana,Burkina Faso,Burundi,Cape Verde,Cameroon,Central African Republic,Chad,Comoros,Cote d'Ivoire,Congo,Côte d'Ivoire,Djibouti,Egypt,Equatorial Guinea,Eritrea,Ethiopia,Gabon,Gambia,Ghana,Guinea,Guinea-Bissau,Kenya,Lesotho,Liberia,Libya,Madagascar,Malawi,Mali,Mauritania,Mauritius,Morocco,Mozambique,Namibia,Niger,Nigeria,Rwanda,Sao Tome and Principe,Senegal,Seychelles,Sierra Leone,Somalia,South Africa,South Sudan,Sudan,Swaziland,Togo,Tunisia,Uganda,Western Sahara,Zambia,Zimbabwe";
+		// africanCountries = africanCountriesString.split(",");
+		// africanCountries.push("Congo, the Democratic Republic of the","Tanzania, United Republic of");
+		// var africanInternetUsers = [];
 
 		// Get a JSON file containing coordinates of 
 		//  countries and landmasses. This is from an 
@@ -359,142 +216,95 @@
         d3.json("data/internet-users.json", function(error1, userData) {
             if (error1) { return console.log(error1); }			
             d3.json("data/world-topo-min.json", function(error2, world) {
-
-            // ANY time we do I/O we should check for errors.
-            if (error1) { return console.log(error2); }			
-            // ANY time we do I/O we should check for errors.
-            
-
-            // Get an array of coordinate lists for 241 
-            //  geographic entites. This includes sovereign 
-            //  countries as well as territories like Guam.
-            var countries = topojson.feature(world, world.objects.countries).features;
-            
-            // convert each country's data into a path element.
-            var noMatch = [];
-            var count = 0;
-            countries.forEach(function (country) {
-                var internet_user_data;
+                // ANY time we do I/O we should check for errors.
+                if (error2) { return console.log(error2); }			
+                // Get an array of coordinate lists for 241 
+                //  geographic entites. This includes sovereign 
+                //  countries as well as territories like Guam.
+                var countries = topojson.feature(world, world.objects.countries).features;
                 
-                internet_user_data = userData.find(function(data) {
-                    return data.Country == country.properties.name; 
-                });
+                // convert each country's data into a path element.
+                var isMouseDown=false;
 
-                if(internet_user_data == null) {
-                    count++;
-                    noMatch.push(country.properties.name);
-                    internet_user_data = { "Internet" : 0};
-                }
-                
-                opacity = internet_user_data.Internet;
+                g.selectAll("path")
+                 .data(countries)
+                 .enter().append("path")
+                 .attr("d",path)
+                 .style("fill", "purple")
+                 .style("stroke", "#888")
+                 .style("fill-opacity",  function(d){return calcOpacity(d)})
+                 .attr("title", function(d){d.properties.name})
+                 .on("click",function(d){worldMapClicked(d,true)})
+                 // .on("mousedown",function(){isMouseDown=true;})
+                 // .on("mouseup",function(){isMouseDown=false;})
+                 // .on("mousemove",function() {if(isMouseDown){
+                 //  var p = d3.mouse(this);
+                 //  projection.rotate([pi(p[0]), 0]);
+                 //  svg.selectAll("path").attr("d", path);
+                 //  }})
+                 //.on("dblclick",function(d){worldMapClicked(d,false)})
+                 .on("dblclick",function(d){worldMapClicked(d,false)})
+                 ;
 
-                var color = "lightgrey";
-                var	color2 = "purple";
+                  g2.selectAll("path")
+                 .data(countries)
+                 .enter().append("path")
+                 .attr("d",path2)
+                 .style("fill", "purple")
+                 .style("stroke", "#888")
+                 .style("fill-opacity",  function(d){return calcOpacity(d)})
+                 .attr("title", function(d){return d.properties.name;})
+                 .on("click",function(d){worldMapClicked(d,true)})
+                 .on("dblclick",function(d){worldMapClicked(d,false)})
+                 ;
 
-                if(africanCountries.indexOf(country.properties.name)>-1) {
-                    color = "purple";
-                    color2="purple";
-                    africanInternetUsers.push(internet_user_data);
-                }
+                 function calcOpacity(d){
+                    var internet_user_data =  userData.find(function(data) {
+                    return data.Country == d.properties.name; 
+                    });
 
-                g.append("path").attr("d", path(country))
-                    .style("fill", color2)
-                    .style("stroke", "#888")
-                    .style("fill-opacity",  (internet_user_data.Internet))
-                    .attr("id", country.id)
-                    .attr("title", country.properties.name);
-                
-                gAfrica.append("path").attr("d", pathAfrica(country))
-                    .style("fill", color)
-                    .style("stroke", "#888")
-                    .style("fill-opacity", opacity)
-                    .attr("id", country.id)
-                    .attr("title", country.properties.name);
-            });	
-            //creating bar chart
-            africanInternetUsers = africanInternetUsers.sort(function(a,b){return b.Internet-a.Internet});
-            africanInternetUsers.pop();
-            africanInternetUsers.pop();
+                    if(internet_user_data == null) {
+                        internet_user_data = { "Internet" : 0};
+                    }
 
-            var sum = 0;
+                    return internet_user_data.Internet;
+                 }
 
-            userData.forEach(function (d) {
-                if (d.Country != 0) {
-                    sum = sum + d.Internet;
-                }
-            });
 
-            average = sum/(userData.length - 1);
-            
-            console.log(sum);
+                function worldMapClicked(c,isSingleClick){
+                    if(isSingleClick){
+                    var centroid = path.centroid(c),
+                        [x,y] = centroid,
+                        [[left, top],[right, bottom]]=path.bounds(c),
+                        cHeight = bottom-top,
+                        cWidth = right - left,
+                         k = 1;
+                         x=x;
+                    if(cHeight>cWidth){k = (height/cHeight)/1.5;}
+                    else {k = width/cWidth/2.2}
+                    if(k<2){k=2};
+                    console.log("width  :"+cWidth + "  height   :"+cHeight +"  K   :"+k)
+                    //data anomoly in france
+                    if(c.properties.name =="France"){k=7}
 
-            var xBarChartScale = d3.scale.linear().domain([0,0.8]).range([30,width*.47]);
-            var numAfricanCountries = africanInternetUsers.length;
+                  // g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
 
-            console.log(africanInternetUsers);
+                    // svg.transition().duration(800)
+                    //  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                    //  .style("stroke-width", 1.5 / k + "px");
 
-            svg3.selectAll("rect")
-                .data(africanInternetUsers)
-                .enter()
-                .append("rect")
-                .attr("width", function(d,i) { return xBarChartScale(d.Internet); })
-                .attr("height",height/(numAfricanCountries+2))
-                .attr("x",30)
-                .attr("y",function(d,i){return (i+2)*height/(numAfricanCountries+2)+height/70})
-                .attr("fill","purple")
-                .attr("stroke", "white")
-                .attr("opacity",function(d,i){return opacityScale(d.Internet+1)});
-            svg3.selectAll("text")
-                .data(africanInternetUsers)
-                .enter()
-                .append("text")
-                .attr("x", 35)
-                .attr("y",function(d,i){return (i+2.75)*height/(numAfricanCountries+2) + height/70})
-                .attr("fill","black")
-                .attr("font-size",height/65)
-                .attr("font-family","Archivo Narrow")
-                .text(function(d,i){return (d.Country)});
-                // found http://stackoverflow.com/questions/10201841/display-y-axis-as-percentages
-                var xAxis = d3.svg.axis().scale(xBarChartScale).tickFormat(function(d) { return d*100 +"%"; }).orient("top");
-
-                svg3.append("g").attr("class","axis")
-                    .attr("transform","translate (0,"+ height/20+ ")")
-                    .call(xAxis)
-                    .selectAll("text")
-                    .style("font-size",height/70+"px");
-
-                svg3.append("line")
-                    .attr("x1", xBarChartScale(average))
-                    .attr("x2", xBarChartScale(average))
-                    .attr("y1", height/20)
-                    .attr("y2", height*1.01)
-                    .attr("stroke", "rgb(24, 63, 116)")
-                    .attr("stroke-width", "2");
-
-                svg3.append("text")
-                    .attr("transform", "translate(" + (1.05*xBarChartScale(average)) + "," + height*0.98 + ")")
-                    .style("font-family", "Archivo Narrow")
-                    .attr("fill", "rgb(24, 63, 116)")
-                    .style("font-weight","bold")
-                    .text("World Average Penetration: " + Math.floor(average * 100) + "%");
-
-                svg3.append("text")	
-                    .attr("transform", "translate(" + xBarChartScale(0.4)  +"," + height/50+ ")")
-                    .attr("text-anchor", "middle")
-                    .style("font-family", "Archivo Narrow")
-                    .style("font-size",height/55)
-                    .text("Penetration (Internet Users / Total Population)");
-
-                svg3.append("text")	
-                    .attr("transform", "translate(" + (xBarChartScale(0)-10)  +"," + height/2+ ") rotate(-90)")
-                    .attr("text-anchor", "middle")
-                    .style("font-family", "Archivo Narrow")
-                    .style("font-size",height/55)
-                    .text("African Countries");
-                });		
-
-            
+                    svg.transition().duration(800)
+                     .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")")
+                     .style("stroke-width", 1.5 / k + "px");
+                    }
+                     else{
+                        svg.transition().duration(800).attr("transform", "translate("+ 0 +"," + 0 +")")                 
+                        }
+                };
+            });		            
         });
+
+
 
         d3.json("data/cable_data.json", function(error, cables) {
             var cables_global = cables;
@@ -509,28 +319,41 @@
 
 				coordinates = coordinates.replace(/<LineString><coordinates>/g,"").replace("</MultiGeometry>",'').replace("<MultiGeometry>",'').split("</coordinates></LineString>");
 				coordinates.pop();
+                cable.coordinates = coordinates;
+                console.log(cable.coordinates)
 
-				coordinates.forEach(function(path){
-					var pathString="";
-					var pathStringAfrica ="";
-					var pathCords = path.split(" ");
-					pathCords.forEach(function(points){
-						[lon,lat,alt] = points.split(",");
-						[lonW,latW] = projection([lon,lat]);
-						[lonA,latA] = projectionAfrica([lon,lat]);
-						pathString += lonW+","+latW+" ";
-						pathStringAfrica += lonA+","+latA+" ";
-					});
-					temp.push(pathString);
-					temp2.push(pathStringAfrica);
-				});
-				cable.coordinates = temp;
-				cable.africaCoordinates = temp2;
 			});
 
+            // g.selectAll("polyline")
+            //      .data(cables)
+            //      .enter().append("polyline")
+            //      .attr("style","fill:none;stroke:"+"red"+";stroke-width:0.6")
+            //      .attr("points",function(d){return d.coordinates;});
+                 
+
+            // g2.selectAll("polyline")
+            //      .data(cables)
+            //      .enter().append("polyline")
+            //      .attr("style","fill:none;stroke:"+"red"+";stroke-width:0.6")
+            //      .attr("points",function(d){return d.coordinates2});
+                 
+
+            function coordToString(coordinates,projection){
+                var temp =[];
+                coordinates.forEach(function(path){
+                    var pathString="";
+                    var pathCords = path.split(" ");
+                    pathCords.forEach(function(points){
+                        [lon,lat,alt] = points.split(",");
+                        [lon,lat] = projection([lon,lat]);
+                        pathString += lon+","+lat+" ";
+                    });
+                    temp.push(pathString);
+                });
+                return temp;
+            }
 			//add polylines	
-			var test = [cables[0]],
-			color = "black",
+			var color = "black",
 			color2 = "black",
 			stroke_width,
 			opacity = 0;
@@ -544,13 +367,31 @@
                     color2 = "#00B24C";
                     opacity = 0.7;
                 }
-                cable.coordinates.forEach(function (paths){
-                    g.append("polyline").attr("style","fill:none;stroke:"+color+";stroke-width:0.6").attr("points",paths);
-                });
+        
+               
+                 coordToString(cable.coordinates,projection).forEach(function(paths){
+                    g.append("polyline")
+                        .attr("style","fill:none;stroke:"+color+";stroke-width:3.6")
+                        .attr("points",paths)
+                        .attr("id","cable"+cable.cable_id)
+                        .on("click",function(){                        
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:3.6");
+                            d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
+                        });
+                })
 
-                cable.africaCoordinates.forEach(function(paths){
-                    gAfrica.append("polyline").attr("style","fill:none;stroke:"+color2+";stroke-width:1.5;opacity:"+opacity).attr("points",paths);
+                coordToString(cable.coordinates,projection2).forEach(function (paths){
+                     g2.append("polyline")
+                        .attr("style","fill:none;stroke:"+color+";stroke-width:3.6")
+                        .attr("points",paths)
+                        .attr("id","cable"+cable.cable_id)
+                        .on("click",function(){      
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:3.6");
+                            d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
+                        });
+                    
                 });
+              
             });
 		});
     </script>
