@@ -284,7 +284,6 @@
                         cHeight = bottom-top,
                         cWidth = right - left,
                          k = 1;
-                         x=x;
                     if(cHeight>cWidth){k = (height/cHeight)/1.5;}
                     else {k = width/cWidth/2.2}
                     if(k<2){k=2};
@@ -407,6 +406,12 @@
 
                             d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
+                        })
+                        .on("mouseover", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "4");
+                        })
+                        .on("mouseout", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
                 })
 
