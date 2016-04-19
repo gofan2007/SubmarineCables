@@ -89,7 +89,12 @@
     <div id="mapWorld" style="text-align: center;"></div>
     
     <br>
-
+    <div style="width:100%; text-align:center;">
+        <div id="mapAfrica" style="float:left; min-width:50%;">
+            <h3>Fiber Optic Cables </h3></div>
+        <div id="chart1" style="float:right; min-width:50%;">
+            <h3>Internet Penetration </h3></div>
+    </div>
   
 
     <script>
@@ -339,18 +344,34 @@
                  
 
             function coordToString(coordinates,projection){
-                var temp =[];
+                var result =[];
+                var lonMin = Math.min(), lonMax = Math.max(), latMin = Math.min(), latMax = Math.max(),cableHeight,cableWidth,min,center,lonArray=[],latArray=[];
                 coordinates.forEach(function(path){
                     var pathString="";
                     var pathCords = path.split(" ");
+
+
                     pathCords.forEach(function(points){
                         [lon,lat,alt] = points.split(",");
                         [lon,lat] = projection([lon,lat]);
+                        if(lon>lonMax){lonMax = lon;}
+                        if(lon<lonMin){lonMin = lon;}
+                        if(lat>latMax){latMax = lat;}
+                        if(lat<latMin){latMin = lat;}
                         pathString += lon+","+lat+" ";
+                        lonArray.push(lon);latArray.push(lat);
+
                     });
-                    temp.push(pathString);
+                    result.push(pathString);
                 });
-                return temp;
+                cableHeight = height/(latMax-latMin)/1.5;
+                cableWidth = width/(lonMax-lonMin)/2.2;
+                min=cableWidth;
+                if(cableHeight<cableWidth){min = cableHeight}
+                var middle = Math.floor(lonArray.length/2);
+                center=[lonArray[middle],latArray[middle]];
+
+                return {"coords": result,"height": cableHeight,"width": cableWidth,"min":min,"center": center};
             }
 			//add polylines	
 			var color = "black",
@@ -368,25 +389,34 @@
                     opacity = 0.7;
                 }
         
-               
-                 coordToString(cable.coordinates,projection).forEach(function(paths){
+                var coordToStringResult = coordToString(cable.coordinates,projection);
+                 coordToStringResult.coords.forEach(function(paths){
                     g.append("polyline")
-                        .attr("style","fill:none;stroke:"+color+";stroke-width:3.6")
+                        .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
-                        .on("click",function(){                        
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:3.6");
+                        .on("click",function(){
+                            var k = coordToStringResult.min;
+                            console.log(coordToStringResult)
+                            var[x,y] = coordToStringResult.center;
+
+                            svg.transition().duration(800)
+                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+                            d3.selectAll("circle").remove();
+                            g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
+
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:0.6");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         });
                 })
 
-                coordToString(cable.coordinates,projection2).forEach(function (paths){
+                coordToString(cable.coordinates,projection2).coords.forEach(function (paths){
                      g2.append("polyline")
-                        .attr("style","fill:none;stroke:"+color+";stroke-width:3.6")
+                        .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
                         .on("click",function(){      
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:3.6");
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:0.6");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         });
                     
