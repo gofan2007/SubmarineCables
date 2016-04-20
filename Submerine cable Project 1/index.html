@@ -141,8 +141,8 @@
         
         //allow to double click and zoom out
         svg.on("dblclick",function(){ 
-            svg.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
-            
+            g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
+            g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
         });
 	
 
@@ -294,13 +294,13 @@
 
                   // g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
 
-                    // svg.transition().duration(800)
-                    //  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-                    //  .style("stroke-width", 1.5 / k + "px");
-
-                    svg.transition().duration(800)
-                     .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")")
+                    g.transition().duration(800)
+                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
                      .style("stroke-width", 1.5 / k + "px");
+                    g2.transition().duration(800)
+                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                     .style("stroke-width", 1.5 / k + "px");
+
                     }
                      else{
                         svg.transition().duration(800).attr("transform", "translate("+ 0 +"," + 0 +")")                 
@@ -402,13 +402,21 @@
                             console.log(coordToStringResult)
                             var[x,y] = coordToStringResult.center;
 
-                            svg.transition().duration(800)
+                            g.transition().duration(800)
                             .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+                            g2.transition().duration(800)
+                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
                             d3.selectAll("circle").remove();
                             g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
 
                             d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
+                        })
+                        .on("mouseover", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "3");
+                        })
+                        .on("mouseout", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
                 })
 
