@@ -21,6 +21,7 @@
         div {
             margin: auto;
             padding: auto;
+            overflow:auto;
         }
 
         
@@ -353,25 +354,33 @@
 
                     pathCords.forEach(function(points){
                         [lon,lat,alt] = points.split(",");
+                        //no projection lon lat
+                        lonArray.push(lon);latArray.push(lat);
                         [lon,lat] = projection([lon,lat]);
                         if(lon>lonMax){lonMax = lon;}
                         if(lon<lonMin){lonMin = lon;}
                         if(lat>latMax){latMax = lat;}
                         if(lat<latMin){latMin = lat;}
                         pathString += lon+","+lat+" ";
-                        lonArray.push(lon);latArray.push(lat);
-
                     });
                     result.push(pathString);
                 });
+
+
+
+                var dist1=lonMax-lonMin;
+                var dist2=projection2([lonMinOri,0])[0]-lonMax;
+                if(dist1<dist2){center=[lonMin+dist1/2,latMin+(latMax-latMin)/2]}
+                else{center=[lonMax+dist2/2,latMin+(latMax-latMin)/2]}
+                    
                 cableHeight = height/(latMax-latMin)/1.5;
                 cableWidth = width/(lonMax-lonMin)/2.2;
                 min=cableWidth;
                 if(cableHeight<cableWidth){min = cableHeight}
-                var middle = Math.floor(lonArray.length/2);
-                center=[lonArray[middle],latArray[middle]];
-                center = [lonMin+(lonMax-lonMin)/2,latMin+(latMax-latMin)/2];
-                console.log(d3.min(lonArray)+"    "+lonMin);
+
+                [lonMinOri,lonMaxOri,latMinOri,latMaxOri]=[d3.min(lonArray),d3.max(lonArray),d3.min(latArray),d3.max(latArray)];
+
+
 
                 return {"coords": result,"height": cableHeight,"width": cableWidth,"min":min,"center": center};
             }
