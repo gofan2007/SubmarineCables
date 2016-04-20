@@ -367,20 +367,17 @@
                 });
 
 
+                [lonMinOri,lonMaxOri,latMinOri,latMaxOri]=[d3.min(lonArray),d3.max(lonArray),d3.min(latArray),d3.max(latArray)];
 
                 var dist1=lonMax-lonMin;
                 var dist2=projection2([lonMinOri,0])[0]-lonMax;
-                if(dist1<dist2){center=[lonMin+dist1/2,latMin+(latMax-latMin)/2]}
-                else{center=[lonMax+dist2/2,latMin+(latMax-latMin)/2]}
-                    
+                if(dist1<dist2){center=[lonMin+dist1/2,latMin+(latMax-latMin)/2]; cableWidth = dist1;}
+                else{center=[lonMax+(dist2/4.5),latMin+(latMax-latMin)/2]; cableWidth = dist2;}
+
                 cableHeight = height/(latMax-latMin)/1.5;
-                cableWidth = width/(lonMax-lonMin)/2.2;
+                cableWidth = width/cableWidth/2.2;
                 min=cableWidth;
                 if(cableHeight<cableWidth){min = cableHeight}
-
-                [lonMinOri,lonMaxOri,latMinOri,latMaxOri]=[d3.min(lonArray),d3.max(lonArray),d3.min(latArray),d3.max(latArray)];
-
-
 
                 return {"coords": result,"height": cableHeight,"width": cableWidth,"min":min,"center": center};
             }
@@ -428,17 +425,34 @@
                             d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
                 })
-                coordToString(cable.coordinates,projection2).coords.forEach(function (paths){
-                     g2.append("polyline")
+                var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+                 coordToStringResult2.coords.forEach(function(paths){
+                    g.append("polyline")
                         .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
-                        .on("click",function(){      
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:1.6");
+                        .on("click",function(){
+                            var k = coordToStringResult.min;
+                            console.log(coordToStringResult)
+                            var[x,y] = coordToStringResult.center;
+
+                            g.transition().duration(800)
+                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+                            g2.transition().duration(800)
+                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+                            d3.selectAll("circle").remove();
+                            g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
+
+                            d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
+                        })
+                        .on("mouseover", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "3");
+                        })
+                        .on("mouseout", function() {
+                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
-                    
-                });
+                })
               
             });
 		});
