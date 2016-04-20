@@ -46,6 +46,10 @@
             font-size: 2vw;
             color: rgb(0, 0, 0);
         }
+
+        text {
+            font-family: "Archivo Narrow";
+        }
         
         .axis path,
         .axis line {
@@ -87,15 +91,29 @@
             messages modulated onto light waves. Fiber optics is a particularly popular technology for local-area networks
             and many telephone companies have begun to adopt it in place of traditional telephone lines.</p>
     </div>
-    <div id="mapWorld" style="text-align: center;"></div>
-    
-    <br>
-    <div style="width:100%; text-align:center;">
+    <div id="mapWorld" style="text-align: center;">
+        <svg id="worldSVG">
+            <defs>
+                <linearGradient id="penetrationGradient">
+                    <stop offset="5%"  stop-color="#cc3399" stop-opacity="0.1"/>
+                    <stop offset="95%" stop-color="#cc3399" stop-opacity="1"/>
+                </linearGradient>
+            </defs>
+            <g id="group">
+                <rect x="2%" y="90%" width="10%" height="18" rx="5" ry="5" fill="url(#penetrationGradient)" stroke="black"/>
+                <text x="5%" y="89.5%">Internet Penetration</text>
+                <text x="2.5%" y="92%">0%</text>
+                <text x="10%" y="92%">100%</text>
+            </rect>
+        </svg>
+    </div>
+   
+<!--     <div style="width:100%; text-align:center;">
         <div id="mapAfrica" style="float:left; min-width:50%;">
             <h3>Fiber Optic Cables </h3></div>
         <div id="chart1" style="float:right; min-width:50%;">
             <h3>Internet Penetration </h3></div>
-    </div>
+    </div> -->
   
 
     <script>
@@ -125,12 +143,11 @@
         var path2 = d3.geo.path().projection(projection2);
 
 
-		var svg = d3.select("#mapWorld")
-            .append("svg")
+		var svg = d3.select("#worldSVG")
                 .attr("width",  width*2)
                 .attr("height", height)
                 .attr("id","worldmap");
-		var g = svg.append("g");
+		var g = d3.select("#group");
 		    svg.append("text")
                 .attr("text-anchor", "middle")
                 .attr("transform", "translate("+ (width*1/2) +"," + 60 +")")
@@ -145,67 +162,6 @@
             g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
             g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
         });
-	
-
-		//adding legend for meaning of opacity in worldmap
-
-		var numbColors = 10;
-		svg.append("g")
-		.append("defs")
-		.append("linearGradient")
-            .attr("id", "legendGradient")
-            .attr("x1", "0%")
-            .attr("x2", "100%")
-            .attr("y1", "0%")
-            .attr("y2", "0%");
-		svg.append("rect")
-            .attr("width", width/2)
-            .attr("height", height/25)
-            .attr("stroke", "grey")
-			.attr("transform", "translate("+ (width*1/2 - width/4) +"," + (height*.94) +")")
-			.style("fill","url(#legendGradient)")
-			.attr("rx", 10)
-			.attr("ry", 10);
-
-        var opacities = [];
-        for (var i = 0; i < numbColors; i++) {
-            var opacity = 100/(numbColors-1)*i/100;
-            var offset = 1/(numbColors-1) * i;
-            opacities.push({"off": offset, "op": opacity});
-        }
-
-		var stops = d3.select('#legendGradient').selectAll('stop')
-		.data(opacities);
-
-		stops.enter().append('stop');
-		stops.attr('offset', function(d) { return d.off; })
-		    .attr('stop-color', "purple")
-		    .attr('stop-opacity',function(d) { return d.op; });
-		
-		svg.append("text")
-            .attr("class", "legendText")
-            .attr("x", (width*1/2 - width/4) - 25)
-            .attr("y", (height*.94) + height/40)
-            .style("font-family", "Archivo Narrow")
-            .text("0%");
-
-		svg.append("text")
-            .attr("class", "legendText")
-            .attr("x", (width*1/2 - width/4) + width/2 + 5)
-            .attr("y", (height*.94) + height/40)
-            .style("font-family", "Archivo Narrow")
-            .text("100%");
-		svg.append("text")
-            .attr("class", "legendText")
-            .attr("x", width*1/2)
-            .attr("text-anchor", "middle")
-            .attr("y", (height*.93))
-            .style("font-family", "Archivo Narrow")
-            .style("font-size",height/65)
-            .text("Internet Penetration Per Capita");
-		//done with adding world legend
-
-		
 
 		var opacityScale = d3.scale.log().domain([1,2]).range([0.05,1]);
 
