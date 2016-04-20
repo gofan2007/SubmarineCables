@@ -284,6 +284,7 @@
                         cHeight = bottom-top,
                         cWidth = right - left,
                          k = 1;
+                         x=x;
                     if(cHeight>cWidth){k = (height/cHeight)/1.5;}
                     else {k = width/cWidth/2.2}
                     if(k<2){k=2};
@@ -369,6 +370,8 @@
                 if(cableHeight<cableWidth){min = cableHeight}
                 var middle = Math.floor(lonArray.length/2);
                 center=[lonArray[middle],latArray[middle]];
+                center = [lonMin+(lonMax-lonMin)/2,latMin+(latMax-latMin)/2];
+                console.log(d3.min(lonArray)+"    "+lonMin);
 
                 return {"coords": result,"height": cableHeight,"width": cableWidth,"min":min,"center": center};
             }
@@ -406,12 +409,6 @@
 
                             d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
-                        })
-                        .on("mouseover", function() {
-                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "4");
-                        })
-                        .on("mouseout", function() {
-                            d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
                 })
 
@@ -421,7 +418,7 @@
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
                         .on("click",function(){      
-                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:1");
+                            d3.selectAll("polyline").attr("style","fill:none;stroke:"+"grey"+";stroke-width:1.6");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         });
                     
