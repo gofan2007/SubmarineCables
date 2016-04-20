@@ -419,7 +419,6 @@
                             d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
                         });
                 })
-
                 coordToString(cable.coordinates,projection2).coords.forEach(function (paths){
                      g2.append("polyline")
                         .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
