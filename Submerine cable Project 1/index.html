@@ -21,7 +21,6 @@
         div {
             margin: auto;
             padding: auto;
-            overflow:auto;
         }
 
         
@@ -87,7 +86,7 @@
             messages modulated onto light waves. Fiber optics is a particularly popular technology for local-area networks
             and many telephone companies have begun to adopt it in place of traditional telephone lines.</p>
     </div>
-    <div id="mapWorld" style="text-align: center;"></div>
+    <div id="mapWorld" style="text-align: center float:left;" ></div>
     
     <br>
     <div style="width:100%; text-align:center;">
@@ -107,13 +106,7 @@
 		// A projection is a particular type of scale, that maps
 		// a pair of LONGITUDE, LATITUDE coordinates (NOT the other
 		// way around) to a point in pixel space.
-       var pi = d3.scale.linear()
-                        .domain([0, width])
-                        .range([-180, 180]);
-
-        var theta = d3.scale.linear()
-                        .domain([0, height])
-                        .range([90, -90]);
+     
         var projection = d3.geo.mercator()
             .translate([width / 2, (3 * height) / 4.5])
             .scale((width ) / 2 / Math.PI);                
@@ -127,7 +120,7 @@
 
 		var svg = d3.select("#mapWorld")
             .append("svg")
-                .attr("width",  width*2)
+                .attr("width",  width)
                 .attr("height", height)
                 .attr("id","worldmap");
 		var g = svg.append("g");
@@ -139,11 +132,17 @@
                 .style("color", "rgb(24, 33, 87)")
                 .text("Fiber Optic Cables Throughout the World");
         var g2 = svg.append("g");
-        
-        //allow to double click and zoom out
-        svg.on("dblclick",function(){ 
+
+
+
+        function resetMap(){
             g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
             g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
+            d3.selectAll("path").style("fill","purple");
+        }
+        //allow to double click and zoom out
+        svg.on("dblclick",function(){ 
+           resetMap();
         });
 	
 
@@ -239,7 +238,8 @@
                  .style("fill", "purple")
                  .style("stroke", "#888")
                  .style("fill-opacity",  function(d){return calcOpacity(d)})
-                 .attr("title", function(d){d.properties.name})
+                 .attr("title", function(d){return d.properties.name})
+                .attr("id",function(d){return "country"+d.id;})
                  .on("click",function(d){worldMapClicked(d,true)})
                  // .on("mousedown",function(){isMouseDown=true;})
                  // .on("mouseup",function(){isMouseDown=false;})
@@ -260,6 +260,7 @@
                  .style("stroke", "#888")
                  .style("fill-opacity",  function(d){return calcOpacity(d)})
                  .attr("title", function(d){return d.properties.name;})
+                 .attr("id",function(d){return "country"+d.id;})
                  .on("click",function(d){worldMapClicked(d,true)})
                  .on("dblclick",function(d){worldMapClicked(d,false)})
                  ;
@@ -286,25 +287,33 @@
                         cWidth = right - left,
                          k = 1;
                          x=x;
-                    if(cHeight>cWidth){k = (height/cHeight)/1.5;}
-                    else {k = width/cWidth/2.2}
-                    if(k<2){k=2};
+                    if(cHeight>cWidth){k = (height/cHeight)/1.6;}
+                    else {k = width/2/cWidth/2.3;}
+
+                    if(k<0.5){k=1;}
+                    else if(k<1.5){k=1.8;}
+                    else {k=k;}
                     console.log("width  :"+cWidth + "  height   :"+cHeight +"  K   :"+k)
                     //data anomoly in france
                     if(c.properties.name =="France"){k=7}
 
-                  // g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
+                    d3.selectAll("path").style("fill","grey");
 
+                  // g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
+                    var countryPath = d3.selectAll("#country"+c.id)[0][0];
+                    countryPath.style.fill = "purple";
+
+                    console.log(d3.selectAll("#country"+c.id))
                     g.transition().duration(800)
-                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                     .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
                      .style("stroke-width", 1.5 / k + "px");
                     g2.transition().duration(800)
-                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                     .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
                      .style("stroke-width", 1.5 / k + "px");
 
                     }
                      else{
-                        svg.transition().duration(800).attr("transform", "translate("+ 0 +"," + 0 +")")                 
+                        resetMap();
                         }
                 };
             });		            
@@ -372,10 +381,10 @@
                 var dist1=lonMax-lonMin;
                 var dist2=projection2([lonMinOri,0])[0]-lonMax;
                 if(dist1<dist2){center=[lonMin+dist1/2,latMin+(latMax-latMin)/2]; cableWidth = dist1;}
-                else{center=[lonMax+(dist2/4.5),latMin+(latMax-latMin)/2]; cableWidth = dist2;}
+                else{center=[lonMax+(dist2/7),latMin+(latMax-latMin)/2]; cableWidth = dist2/0.9;}
 
                 cableHeight = height/(latMax-latMin)/1.5;
-                cableWidth = width/cableWidth/2.2;
+                cableWidth = width/1.5/cableWidth/2.2;
                 min=cableWidth;
                 if(cableHeight<cableWidth){min = cableHeight}
 
@@ -403,18 +412,18 @@
                         .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
                         .attr("points",paths)
                         .attr("id","cable"+cable.cable_id)
+                        .attr("title",cable.id)
                         .on("click",function(){
                             var k = coordToStringResult.min;
                             console.log(coordToStringResult)
                             var[x,y] = coordToStringResult.center;
 
                             g.transition().duration(800)
-                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+                            .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
                             g2.transition().duration(800)
-                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+                            .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
                             d3.selectAll("circle").remove();
                             g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
-
                             d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:"+"grey"+";stroke-width:1");
                             d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:"+color+";stroke-width:6");
                         })
@@ -437,9 +446,9 @@
                             var[x,y] = coordToStringResult.center;
 
                             g.transition().duration(800)
-                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+                            .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
                             g2.transition().duration(800)
-                            .attr("transform", "translate(" + width/2 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+                            .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
                             d3.selectAll("circle").remove();
                             g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
 
@@ -456,6 +465,10 @@
               
             });
 		});
+
+
+        svg.append("rect").attr("x",0).attr("y",0).attr("width",width/2).attr("height",height).attr("stroke","black").attr("fill","none")
+
     </script>
 </body>
 
