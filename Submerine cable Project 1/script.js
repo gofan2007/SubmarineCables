@@ -104,7 +104,9 @@ d3.json("data/internet-users.json", function(error1, userData) {
       }
 
       function worldMapClicked(c, isSingleClick) {
-        toggleGraphDiv();
+        if (!graphToggled) {
+          toggleGraphDiv();
+        }
         if (isSingleClick) {
           var centroid = path.centroid(c),
               [x,y] = centroid,
@@ -240,7 +242,9 @@ d3.json("data/cable_data.json", function(error, cables) {
         g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
         d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
         d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
-        toggleGraphDiv();
+        if (!graphToggled) {
+          toggleGraphDiv();
+        }
       })
       .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
