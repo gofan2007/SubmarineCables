@@ -58,3 +58,11 @@ div#graph-div {
     border: 1px solid black;
     background-color: black;
 }
+
+#graphSVG {
+    float: left;
+}
+
+#graphSVG text {
+    font-size: 1vw;
+}

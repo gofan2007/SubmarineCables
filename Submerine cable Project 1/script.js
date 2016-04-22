@@ -47,6 +47,16 @@ svg.on("dblclick",function() {
 });
 
 var opacityScale = d3.scale.linear().domain([0,1]).range([0.1,1]);
+var countryGDPs = {};
+
+d3.json("data/gdps.json", function(error, data) {
+  //create dictionary mapping country name to country dictionary for fast lookup
+  data.forEach(function(country) {
+    countryGDPs[country["Country Name"]] = country;
+  })
+  console.log(countryGDPs);
+  //generateGraph("United States");
+});
 
 d3.json("data/internet-users.json", function(error1, userData) {
   if (error1) { return console.log(error1); }
@@ -153,6 +163,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           // g2.transition().duration(800)
           //  .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
           //  .style("stroke-width", 1.5 / k + "px");
+          generateGraph(c.properties.name);
         } else {
           resetMap();
         }
@@ -309,6 +320,38 @@ function toggleGraphDiv() {
   console.log("toggling graph");
   $("#graph-div").slideToggle(500);
   graphToggled = !graphToggled;
+}
+
+function generateGraph(countryName) {
+  var xPadding = 100;
+  var yPadding = 100;
+  var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
+  var yScale = d3.scale.linear().domain([0, 90000]).range([height - yPadding, yPadding]);
+  var xAxis = d3.svg.axis().scale(xScale)
+    .orient("bottom");
+  var yAxis = d3.svg.axis().scale(yScale)
+    .orient("left");
+  var graphSVG = d3.select("#graphSVG")
+  graphSVG.selectAll("*").remove();
+  graphSVG.append("g").attr("class", "axis")
+    .attr("transform", "translate(0," + (height - yPadding) + ")")
+    .call(xAxis);
+  graphSVG.append("g").attr("class", "axis")
+    .attr("transform", "translate(" + xPadding + ", 0)")
+    .call(yAxis);
+  var desiredCountry = countryGDPs[countryName];
+  for (var i = 1989; i < 2015; i++) {
+    var dateString = i.toString();
+    var key = dateString + " [YR" + dateString + "]";
+    if (desiredCountry[key] != "..") {
+      console.log(desiredCountry[key]);
+      graphSVG.append("circle")
+        .attr("cx", xScale(i))
+        .attr("cy", yScale(desiredCountry[key]))
+        .attr("r", 3)
+        .style("fill", "black");
+    }
+  }
 }
 
 svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");
