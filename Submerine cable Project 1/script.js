@@ -148,6 +148,18 @@ d3.json("data/internet-users.json", function(error1, userData) {
 });
 
 d3.json("data/cable_data.json", function(error, cables) {
+  d3.json("data/landing_points.json", function(error3, landingPoints) {
+    landingPoints.forEach(function(landingPoint){
+    var name = landingPoint.name;
+    name = name.split(", ");
+    landingPoint.country = name[name.length-1];
+    var[lon,lat,alt] = landingPoint.coordinates
+                                .replace("<Point><coordinates>","")
+                                .replace("</coordinates></Point>","")
+                                .split(",");
+    landingPoint.coordinates=[lon,lat];
+    });
+
   var cables_global = cables;
   if (error) { return console.log(error); }
   cables.forEach(function(cable) {
@@ -224,7 +236,10 @@ d3.json("data/cable_data.json", function(error, cables) {
     }
 
     var coordToStringResult = coordToString(cable.coordinates,projection);
-    coordToStringResult.coords.forEach(function(paths) {
+    var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+
+
+    (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
       g.append("polyline")
       .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
       .attr("points",paths)
@@ -236,15 +251,31 @@ d3.json("data/cable_data.json", function(error, cables) {
         var[x,y] = coordToStringResult.center;
         g.transition().duration(800)
         .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
-        g2.transition().duration(800)
-        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+        var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
+
         d3.selectAll("circle").remove();
-        g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
+        cableLandingPoints.forEach(function(d){
+          var coord1 = projection(d.coordinates),
+              coord2 = projection2(d.coordinates);
+
+          g.append("circle")
+           .attr("cx",coord1[0])
+           .attr("cy",coord1[1])
+           .attr("r",8);
+
+          g.append("circle")
+           .attr("cx",coord2[0])
+           .attr("cy",coord2[1])
+           .attr("r",8);
+        });
+
+          
         d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
         d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
         if (!graphToggled) {
           toggleGraphDiv();
         }
+
       })
       .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
@@ -256,33 +287,8 @@ d3.json("data/cable_data.json", function(error, cables) {
 
     var coordToStringResult2 = coordToString(cable.coordinates,projection2);
 
-    coordToStringResult2.coords.forEach(function(paths) {
-    g.append("polyline")
-      .attr("style", "fill:none;stroke:" + color + ";stroke-width:1.6")
-      .attr("points",paths)
-      .attr("id","cable" + cable.cable_id)
-      .on("click",function(){
-        var k = coordToStringResult.min;
-        //console.log(coordToStringResult)
-        var[x,y] = coordToStringResult.center;
 
-        g.transition().duration(800)
-        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + -x + "," + -y + ")");  
-        g2.transition().duration(800)
-        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + -x + "," + -y + ")");
-        d3.selectAll("circle").remove();
-        g.append("circle").attr("cx",x).attr("cy",y).attr("r",10);
-
-        d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
-        d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
-      })
-      .on("mouseover", function() {
-          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
-      })
-      .on("mouseout", function() {
-          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1.6");
-      });
-    });
+  });
   });
 });
 
