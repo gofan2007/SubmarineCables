@@ -27,7 +27,7 @@ graphDiv.style("height", height)
   .style("width", width / 2)
   .style("display", "none")
   .style("background-color", "gray")
-  .style("opacity", 0.7)
+  .style("opacity", 0.85)
   .style("position", "absolute")
   .style("left", width / 2);
 var graphToggled = false;
