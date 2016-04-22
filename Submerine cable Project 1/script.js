@@ -35,7 +35,7 @@ var graphToggled = false;
 function resetMap(){
     g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
     //g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
-    d3.selectAll("path").style("fill","purple");
+    d3.selectAll("path").style("fill", mapColor);
 }
 
 //allow to double click and zoom out
