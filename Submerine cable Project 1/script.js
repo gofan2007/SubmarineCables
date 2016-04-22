@@ -46,7 +46,7 @@ svg.on("dblclick",function() {
   resetMap();
 });
 
-var opacityScale = d3.scale.log().domain([1,2]).range([0.05,1]);
+var opacityScale = d3.scale.linear().domain([0,1]).range([0.1,1]);
 
 d3.json("data/internet-users.json", function(error1, userData) {
   if (error1) { return console.log(error1); }     
@@ -55,6 +55,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
 
+      var prevColor = "purple";
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -68,11 +69,13 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .on("click", function(d){ worldMapClicked(d, true) })
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
-          console.log("hover");
-          d3.select("#country" + d.id).style("fill", "#56d04b");
+            prevColor = d3.select("#country" + d.id)[0][0].style.fill;
+            console.log(prevColor);
+            d3.select("#country" + d.id).style("fill", "#56d04b");
+          
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("fill", "purple");
+            d3.select("#country" + d.id).style("fill", prevColor);
         });
 
       g.selectAll("map2")
@@ -88,11 +91,13 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .on("click", function(d){ worldMapClicked(d,true); })
        .on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
-          console.log("hover");
-          d3.select("#country" + d.id).style("fill", "#56d04b");
+            prevColor = d3.select("#country" + d.id)[0][0].style.fill;
+            console.log(prevColor);
+            d3.select("#country" + d.id).style("fill", "#56d04b");
+          
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("fill", "purple");
+            d3.select("#country" + d.id).style("fill", prevColor);
         });
 
       function calcOpacity(d){
@@ -100,9 +105,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
           return data.Country == d.properties.name; 
         });
         if (internet_user_data == null) {
+          console.log(d.properties.name)
           internet_user_data = { "Internet" : 0};
         }
-        return internet_user_data.Internet;
+        return opacityScale(internet_user_data.Internet);
       }
 
       function worldMapClicked(c, isSingleClick) {
