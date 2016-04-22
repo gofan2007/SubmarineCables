@@ -69,7 +69,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("fill", "grey");
+          d3.select("#country" + d.id).style("fill", "#56d04b");
         })
         .on("mouseout", function(d) {
           d3.select("#country" + d.id).style("fill", "purple");
@@ -89,7 +89,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("fill", "grey");
+          d3.select("#country" + d.id).style("fill", "#56d04b");
         })
         .on("mouseout", function(d) {
           d3.select("#country" + d.id).style("fill", "purple");
