@@ -5,11 +5,11 @@ height = window.innerHeight;
 // way around) to a point in pixel space.
 var projection = d3.geo.mercator()
   .translate([width / 2, (3 * height) / 4.5])
-  .scale((width ) / 2 / Math.PI);                
+  .scale((width ) / 2 / Math.PI);
 var projection2 = d3.geo.mercator()
   .translate([(width *1.5) , (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
-            
+
 var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
@@ -40,7 +40,7 @@ function resetMap(){
 
 //allow to double click and zoom out
 svg.on("dblclick",function() {
-  if (graphToggled) { 
+  if (graphToggled) {
     toggleGraphDiv();
   }
   resetMap();
@@ -49,18 +49,21 @@ svg.on("dblclick",function() {
 var opacityScale = d3.scale.log().domain([1,2]).range([0.05,1]);
 
 d3.json("data/internet-users.json", function(error1, userData) {
-  if (error1) { return console.log(error1); }     
+  if (error1) { return console.log(error1); }
   d3.json("data/world-topo-min.json", function(error2, world) {
-      if (error2) { return console.log(error2); }     
+      if (error2) { return console.log(error2); }
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
+
+      var mapColor = "#7fcdbb";
+      var mapHover = "#edf8b1";
 
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
         .attr("d",path)
         .attr("class","map1")
-        .style("fill", "purple")
+        .style("fill", mapColor)
         .style("stroke", "#888")
         .style("fill-opacity", function(d){return calcOpacity(d)})
         .attr("title", function(d){return d.properties.name})
@@ -69,18 +72,19 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("fill", "#56d04b");
+          d3.select("#country" + d.id).style("fill", mapHover);
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("fill", "purple");
+          d3.select("#country" + d.id).style("fill", mapColor);
         });
+
 
       g.selectAll("map2")
        .data(countries)
        .enter().append("path")
        .attr("d", path2)
        .attr("class","map2")
-       .style("fill", "purple")
+       .style("fill", mapColor)
        .style("stroke", "#888")
        .style("fill-opacity", function(d){ return calcOpacity(d) })
        .attr("title", function(d){ return d.properties.name; })
@@ -89,15 +93,15 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("fill", "#56d04b");
+          d3.select("#country" + d.id).style("fill", mapHover);
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("fill", "purple");
+          d3.select("#country" + d.id).style("fill", mapColor);
         });
 
       function calcOpacity(d){
         var internet_user_data = userData.find(function(data) {
-          return data.Country == d.properties.name; 
+          return data.Country == d.properties.name;
         });
         if (internet_user_data == null) {
           internet_user_data = { "Internet" : 0};
@@ -146,7 +150,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           resetMap();
         }
       };
-  });               
+  });
 });
 
 d3.json("data/cable_data.json", function(error, cables) {
@@ -205,10 +209,10 @@ d3.json("data/cable_data.json", function(error, cables) {
     var dist1 = lonMax - lonMin;
     var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
     if (dist1 < dist2) {
-      center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2]; 
+      center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
       cableWidth = dist1;
     } else {
-      center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2]; 
+      center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2];
       cableWidth = dist2 / 0.9;
     }
 
@@ -221,7 +225,7 @@ d3.json("data/cable_data.json", function(error, cables) {
 
     return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
   }
-      //add polylines 
+      //add polylines
   var color = "black",
   color2 = "black",
   stroke_width,
@@ -252,7 +256,7 @@ d3.json("data/cable_data.json", function(error, cables) {
         //console.log(coordToStringResult)
         var[x,y] = coordToStringResult.center;
         g.transition().duration(800)
-        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");  
+        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
         var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
 
         d3.selectAll("circle").remove();
@@ -271,7 +275,7 @@ d3.json("data/cable_data.json", function(error, cables) {
            .attr("r",8);
         });
 
-          
+
         d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
         d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
         if (!graphToggled) {
