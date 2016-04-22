@@ -20,7 +20,7 @@ var svg = d3.select("#worldSVG")
 
 var g = d3.select("#group");
 
-var g2 = svg.append("g");
+//var g2 = svg.append("g");
 var graphDiv = d3.select("#graph-div");
 // console.log(svg.getBoundClientRect().height);
 graphDiv.style("height", height)
@@ -34,7 +34,7 @@ var graphToggled = false;
 
 function resetMap(){
     g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
-    g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
+    //g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
     d3.selectAll("path").style("fill","purple");
 }
 
@@ -55,10 +55,11 @@ d3.json("data/internet-users.json", function(error1, userData) {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
 
-      g.selectAll("path")
+      g.selectAll("map1")
         .data(countries)
         .enter().append("path")
         .attr("d",path)
+        .attr("class","map1")
         .style("fill", "purple")
         .style("stroke", "#888")
         .style("fill-opacity", function(d){return calcOpacity(d)})
@@ -68,16 +69,17 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("stroke", "black");
+          d3.select("#country" + d.id).style("fill", "grey");
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("stroke", "#888");
+          d3.select("#country" + d.id).style("fill", "purple");
         });
 
-      g2.selectAll("path")
+      g.selectAll("map2")
        .data(countries)
        .enter().append("path")
        .attr("d", path2)
+       .attr("class","map2")
        .style("fill", "purple")
        .style("stroke", "#888")
        .style("fill-opacity", function(d){ return calcOpacity(d) })
@@ -87,10 +89,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
           console.log("hover");
-          d3.select("#country" + d.id).style("stroke", "black");
+          d3.select("#country" + d.id).style("fill", "grey");
         })
         .on("mouseout", function(d) {
-          d3.select("#country" + d.id).style("stroke", "#888");
+          d3.select("#country" + d.id).style("fill", "purple");
         });
 
       function calcOpacity(d){
@@ -137,9 +139,9 @@ d3.json("data/internet-users.json", function(error1, userData) {
           g.transition().duration(800)
            .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
            .style("stroke-width", 1.5 / k + "px");
-          g2.transition().duration(800)
-           .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-           .style("stroke-width", 1.5 / k + "px");
+          // g2.transition().duration(800)
+          //  .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+          //  .style("stroke-width", 1.5 / k + "px");
         } else {
           resetMap();
         }
