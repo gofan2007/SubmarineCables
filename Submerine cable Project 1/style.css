@@ -33,6 +33,10 @@ h3 {
     color: rgb(0, 0, 0);
 }
 
+img.right {
+    float:right;
+}
+
 text {
     font-family: "Archivo Narrow";
 }
@@ -49,5 +53,5 @@ text {
 }
 
 div#graph-div {
-    
+
 }
