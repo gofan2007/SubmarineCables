@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <title>Fiber Optic Cable</title>
 </head>
 
@@ -32,7 +33,9 @@
         <!-- Definition from http://www.igi-global.com/dictionary/internet-penetration/15438 -->
         <p>Internet penetration is the relationship between the number of Internet users in a certain county and its demographic data. This means the proportion of the population that has access to Internet. In the world map shown below, the countries with a darker purple shading have a greater Internet penetration.</p>
     </div>
+
     <div id="mapWorld" style="text-align: center;">
+        <div id="graph-div"></div>
         <svg id="worldSVG">
             <defs>
                 <linearGradient id="penetrationGradient">
@@ -41,10 +44,10 @@
                 </linearGradient>
             </defs>
             <g id="group">
-                <rect x="2%" y="90%" width="10%" height="18" rx="5" ry="5" fill="url(#penetrationGradient)" stroke="black"/>
+                <rect x="2%" y="90%" width="10%" height="1.5vw" rx="5" ry="5" fill="url(#penetrationGradient)" stroke="black"/>
                 <text x="5%" y="89.5%">Internet Penetration</text>
-                <text x="2.5%" y="92%">0%</text>
-                <text x="10%" y="92%">100%</text>
+                <text x="2.5%" y="91.25%">0%</text>
+                <text x="10%" y="91.25%">100%</text>
             </rect>
         </svg>
     </div>

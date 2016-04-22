@@ -14,13 +14,23 @@ var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
 var svg = d3.select("#worldSVG")
-  .attr("width",  width*2)
+  .attr("width",  width * 2)
   .attr("height", height)
-  .attr("id","worldmap");
+  .attr("id", "worldmap");
 
 var g = d3.select("#group");
 
 var g2 = svg.append("g");
+var graphDiv = d3.select("#graph-div");
+// console.log(svg.getBoundClientRect().height);
+graphDiv.style("height", height)
+  .style("width", width / 2)
+  .style("display", "none")
+  .style("background-color", "gray")
+  .style("opacity", 0.7)
+  .style("position", "absolute")
+  .style("left", width / 2);
+var graphToggled = false;
 
 function resetMap(){
     g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
@@ -29,8 +39,11 @@ function resetMap(){
 }
 
 //allow to double click and zoom out
-svg.on("dblclick",function(){ 
-   resetMap();
+svg.on("dblclick",function() {
+  if (graphToggled) { 
+    toggleGraphDiv();
+  }
+  resetMap();
 });
 
 var opacityScale = d3.scale.log().domain([1,2]).range([0.05,1]);
@@ -51,8 +64,8 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .style("fill-opacity", function(d){return calcOpacity(d)})
         .attr("title", function(d){return d.properties.name})
         .attr("id", function(d){return "country" + d.id;})
-        .on("click", function(d){ worldMapClicked(d,true) })
-        .on("dblclick", function(d){ worldMapClicked(d,false) })
+        .on("click", function(d){ worldMapClicked(d, true) })
+        .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
           console.log("hover");
           d3.select("#country" + d.id).style("stroke", "black");
@@ -90,33 +103,33 @@ d3.json("data/internet-users.json", function(error1, userData) {
         return internet_user_data.Internet;
       }
 
-      function worldMapClicked(c,isSingleClick) {
+      function worldMapClicked(c, isSingleClick) {
+        toggleGraphDiv();
         if (isSingleClick) {
           var centroid = path.centroid(c),
               [x,y] = centroid,
-              [[left, top],[right, bottom]]=path.bounds(c),
-              cHeight = bottom-top,
+              [[left, top], [right, bottom]] = path.bounds(c),
+              cHeight = bottom - top,
               cWidth = right - left,
-               k = 1;
-               x = x;
+              k = 1;
           if (cHeight > cWidth){
             k = (height / cHeight) / 1.6;
-          }
-          else {
+          } else {
             k = width / 2 / cWidth / 2.3;
           }
 
-          if (k < 0.5) { k=1; }
+          if (k < 0.5) { k = 1; }
           else if (k < 1.5) { k = 1.8; }
           else { k = k; }
           //console.log("width  :"+cWidth + "  height   :"+cHeight +"  K   :"+k)
           //data anomoly in France
           if(c.properties.name == "France"){ k = 7; }
+          else if (c.properties.name == "United States") { k = 1.5; }
 
           d3.selectAll("path").style("fill","grey");
 
           //g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
-          var countryPath = d3.selectAll("#country"+c.id)[0][0];
+          var countryPath = d3.selectAll("#country" + c.id)[0][0];
           countryPath.style.fill = "purple";
           //console.log(d3.selectAll("#country"+c.id))
           g.transition().duration(800)
@@ -166,20 +179,19 @@ d3.json("data/cable_data.json", function(error, cables) {
         if(lon<lonMin){lonMin = lon;}
         if(lat>latMax){latMax = lat;}
         if(lat<latMin){latMin = lat;}
-        pathString += lon+","+lat+" ";
+        pathString += lon + "," + lat + " ";
       });
       result.push(pathString);
     });
 
     [lonMinOri, lonMaxOri, latMinOri, latMaxOri] = [d3.min(lonArray), d3.max(lonArray), d3.min(latArray), d3.max(latArray)];
 
-    var dist1 = lonMax-lonMin;
-    var dist2 = projection2([lonMinOri,0])[0] - lonMax;
+    var dist1 = lonMax - lonMin;
+    var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
     if (dist1 < dist2) {
-      center = [lonMin + dist1 / 2,latMin + (latMax - latMin) / 2]; 
+      center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2]; 
       cableWidth = dist1;
-    }
-    else {
+    } else {
       center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2]; 
       cableWidth = dist2 / 0.9;
     }
@@ -187,11 +199,11 @@ d3.json("data/cable_data.json", function(error, cables) {
     cableHeight = height / (latMax - latMin) / 1.5;
     cableWidth = width / 1.5 / cableWidth / 2.2;
     min = cableWidth;
-    if (cableHeight<cableWidth){
+    if (cableHeight < cableWidth){
       min = cableHeight;
     }
 
-    return {"coords": result,"height": cableHeight,"width": cableWidth,"min":min,"center": center};
+    return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
   }
       //add polylines 
   var color = "black",
@@ -216,7 +228,7 @@ d3.json("data/cable_data.json", function(error, cables) {
       .attr("points",paths)
       .attr("id","cable"+cable.cable_id)
       .attr("title",cable.id)
-      .on("click",function(){
+      .on("click", function() {
         var k = coordToStringResult.min;
         //console.log(coordToStringResult)
         var[x,y] = coordToStringResult.center;
@@ -227,13 +239,14 @@ d3.json("data/cable_data.json", function(error, cables) {
         d3.selectAll("circle").remove();
         g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
         d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
-        d3.selectAll("#cable"+cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
+        d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
+        toggleGraphDiv();
       })
       .on("mouseover", function() {
-          d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "6");
+          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
       })
       .on("mouseout", function() {
-          d3.selectAll("#cable"+cable.cable_id).style("stroke-width", "1.6");
+          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1.6");
       });
     });
 
@@ -254,7 +267,7 @@ d3.json("data/cable_data.json", function(error, cables) {
         g2.transition().duration(800)
         .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + -x + "," + -y + ")");
         d3.selectAll("circle").remove();
-        g.append("circle").attr("cx",x).attr("cy",y).attr("r",10)  ;          
+        g.append("circle").attr("cx",x).attr("cy",y).attr("r",10);
 
         d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
         d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
@@ -268,5 +281,11 @@ d3.json("data/cable_data.json", function(error, cables) {
     });
   });
 });
+
+function toggleGraphDiv() {
+  console.log("toggling graph");
+  $("#graph-div").slideToggle(500);
+  graphToggled = !graphToggled;
+}
 
 svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");

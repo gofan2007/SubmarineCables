@@ -39,6 +39,8 @@ img.right {
 
 text {
     font-family: "Archivo Narrow";
+    font-size: 1vw;
+    alignment-baseline: middle;
 }
 
 .axis path, .axis line {
@@ -53,5 +55,6 @@ text {
 }
 
 div#graph-div {
-
+    border: 1px solid black;
+    background-color: black;
 }
