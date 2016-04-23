@@ -33,7 +33,7 @@ graphDiv.style("height", height)
 var graphToggled = false;
 
 function resetMap(){
-    g.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
+    g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
     //g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
     d3.selectAll("path").style("fill", mapColor);
 }
@@ -54,7 +54,7 @@ d3.json("data/gdps.json", function(error, data) {
   data.forEach(function(country) {
     countryGDPs[country["Country Name"]] = country;
   })
-  console.log(countryGDPs);
+  //console.log(countryGDPs);
   //generateGraph("United States");
 });
 
@@ -65,7 +65,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
 
-      var mapColor = "#7fcdbb";
+      var mapColor = "#5abfa8";
       var mapOceanColor = "white"
       var mapHover = "#edf8b1";
 
@@ -78,16 +78,24 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .attr("class","map1")
         .style("fill", mapColor)
         .style("stroke", "#888")
-        .style("fill-opacity", function(d){return calcOpacity(d)})
+        .style("fill-opacity", function(d){
+            return calcOpacity(d);
+          })
         .attr("title", function(d){return d.properties.name})
         .attr("id", function(d){return "country" + d.id;})
         .on("click", function(d){ worldMapClicked(d, true) })
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
-            d3.select("#country" + d.id).style("fill", mapHover);
+            d3.select("#country" + d.id)
+            .style("fill", mapHover)
+            .style("fill-opacity", 1);
         })
         .on("mouseout", function(d) {
-            d3.select("#country" + d.id).style("fill", mapColor);
+            d3.select("#country" + d.id)
+            .style("fill", mapColor)
+            .style("fill-opacity", function(d){
+              return calcOpacity(d);
+            });
         });
 
 
@@ -116,7 +124,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           return data.Country == d.properties.name;
         });
         if (internet_user_data == null) {
-          console.log(d.properties.name)
+          //console.log(d.properties.name)
           internet_user_data = { "Internet" : 0};
         }
         return opacityScale(internet_user_data.Internet);
@@ -313,16 +321,35 @@ d3.json("data/cable_data.json", function(error, cables) {
 });
 
 function toggleGraphDiv() {
-  console.log("toggling graph");
+  //console.log("toggling graph");
   $("#graph-div").slideToggle(500);
   graphToggled = !graphToggled;
 }
 
 function generateGraph(countryName) {
+
+  var desiredCountry = countryGDPs[countryName];
+  var nextKey = "1989 [YR1989]";
+  var key;
+  var gdpval = [];
+
+  for (var i = 1989; i < 2015; i++) {
+    var nextDateString = (i + 1).toString();
+    key = nextKey;
+    nextKey = nextDateString + " [YR" + nextDateString + "]";
+    
+    if(desiredCountry[key] != ".."){
+      gdpval.push(desiredCountry[key]);
+    }
+  }
+  var maxvalue = Math.max.apply(Math, gdpval);
+  console.log(gdpval);
+  console.log(maxvalue);
+
   var xPadding = 100;
   var yPadding = 100;
   var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
-  var yScale = d3.scale.linear().domain([0, 90000]).range([height - yPadding, yPadding]);
+  var yScale = d3.scale.linear().domain([0, maxvalue]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom");
   var yAxis = d3.svg.axis().scale(yScale)
@@ -335,15 +362,13 @@ function generateGraph(countryName) {
   graphSVG.append("g").attr("class", "axis")
     .attr("transform", "translate(" + xPadding + ", 0)")
     .call(yAxis);
-  var desiredCountry = countryGDPs[countryName];
-  var nextKey = "1989 [YR1989]";
-  var key;
+
   for (var i = 1989; i < 2015; i++) {
     var nextDateString = (i + 1).toString();
     key = nextKey;
     nextKey = nextDateString + " [YR" + nextDateString + "]";
     if (desiredCountry[key] != "..") {
-      console.log(desiredCountry[key]);
+      //console.log(desiredCountry[key]);
       graphSVG.append("circle")
         .attr("cx", xScale(i))
         .attr("cy", yScale(desiredCountry[key]))
@@ -359,6 +384,7 @@ function generateGraph(countryName) {
       }
     }
   }
+
 }
 
 svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");

@@ -98,7 +98,6 @@ div#header-div {
   background: white;
   width: 110%;
   height: 110%;
-  border-radius: 50px;
   border-style: double;
   border-width: medium;
   border-color: black;
@@ -106,7 +105,7 @@ div#header-div {
   vertical-align: middle;
   position: relative;
   left: 0px;
-  top: 150px
+  top: 130px
 }
 
 .centerPseudo {
