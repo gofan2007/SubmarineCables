@@ -31,6 +31,9 @@ graphDiv.style("height", height)
   .style("position", "absolute")
   .style("left", width / 2);
 var graphToggled = false;
+var mapColor = "#5abfa8";
+var mapOceanColor = "white"
+var mapHover = "#edf8b1";
 
 function resetMap(){
     g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
@@ -64,10 +67,6 @@ d3.json("data/internet-users.json", function(error1, userData) {
       if (error2) { return console.log(error2); }
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
-
-      var mapColor = "#5abfa8";
-      var mapOceanColor = "white"
-      var mapHover = "#edf8b1";
 
       svg.style("background", mapOceanColor);
 
@@ -333,8 +332,21 @@ function toggleGraphDiv() {
 }
 
 function generateGraph(countryName) {
-
+  var graphSVG = d3.select("#graphSVG");
+  graphSVG.selectAll("*").remove();
   var desiredCountry = countryGDPs[countryName];
+  if (desiredCountry ==  null) {
+    console.log("caught error");
+    graphSVG.append("text")
+    .text("Data N/A")
+    .attr("x", "50%")
+    .attr("y", "50%")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 20);
+    return;
+  }
 
   var nextKey = "1989 [YR1989]";
   var key;
@@ -361,8 +373,6 @@ function generateGraph(countryName) {
     .orient("bottom");
   var yAxis = d3.svg.axis().scale(yScale)
     .orient("left");
-  var graphSVG = d3.select("#graphSVG")
-  graphSVG.selectAll("*").remove();
   graphSVG.append("g").attr("class", "axis")
     .attr("transform", "translate(0," + (height - yPadding) + ")")
     .call(xAxis);
