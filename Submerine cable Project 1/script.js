@@ -65,7 +65,6 @@ d3.json("data/internet-users.json", function(error1, userData) {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
 
-      var prevColor = "purple";
       var mapColor = "#7fcdbb";
       var mapOceanColor = "white"
       var mapHover = "#edf8b1";
@@ -85,13 +84,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .on("click", function(d){ worldMapClicked(d, true) })
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
-            prevColor = d3.select("#country" + d.id)[0][0].style.fill;
-            console.log(prevColor);
-            d3.select("#country" + d.id).style("fill", "#56d04b");
-          
+            d3.select("#country" + d.id).style("fill", mapHover);
         })
         .on("mouseout", function(d) {
-            d3.select("#country" + d.id).style("fill", prevColor);
+            d3.select("#country" + d.id).style("fill", mapColor);
         });
 
 
@@ -108,13 +104,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .on("click", function(d){ worldMapClicked(d,true); })
        .on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
-            prevColor = d3.select("#country" + d.id)[0][0].style.fill;
-            console.log(prevColor);
-            d3.select("#country" + d.id).style("fill", "#56d04b");
-          
+            d3.select("#country" + d.id).style("fill", mapHover);
         })
         .on("mouseout", function(d) {
-            d3.select("#country" + d.id).style("fill", prevColor);
+            d3.select("#country" + d.id).style("fill", mapColor);
 
         });
 
@@ -154,11 +147,11 @@ d3.json("data/internet-users.json", function(error1, userData) {
           if(c.properties.name == "France"){ k = 7; }
           else if (c.properties.name == "United States") { k = 1.5; }
 
-          d3.selectAll("path").style("fill","grey");
+          d3.selectAll("path").style("fill", mapColor);
 
           //g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
           var countryPath = d3.selectAll("#country" + c.id)[0][0];
-          countryPath.style.fill = "purple";
+          countryPath.style.fill = mapColor;
           //console.log(d3.selectAll("#country"+c.id))
           g.transition().duration(800)
            .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")

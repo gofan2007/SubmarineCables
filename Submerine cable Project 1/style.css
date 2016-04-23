@@ -78,7 +78,7 @@ div#header-div {
     margin:0px;
     background: white;
     width: 100%;
-    height: 20%;
+    height: 30%;
     background-image: url('images/fiberoptic.png');
     background-position: bottom left;
     background-repeat: no-repeat;
@@ -93,18 +93,40 @@ div#header-div {
     max-height: 100%;
 }
 
-#header-div h1 {
+#header-div2 h1{
+  margin:0px;
+  background: white;
+  width: 110%;
+  height: 110%;
+  border-radius: 50px;
+  border-style: double;
+  border-width: medium;
+  border-color: black;
+  text-align: center;
+  vertical-align: middle;
+  position: relative;
+  left: 0px;
+  top: 150px
+}
+
+.centerPseudo {
+    display: inline-block;
     text-align: center;
-    display: table-cell;
-    vertical-align: middle;
-    color: white;
+}
+
+#rcorners1 {
+    border-radius: 25px;
+    background: #73AD21;
+    padding: 20px;
+    width: 200px;
+    height: 150px;
 }
 
 #header-div h6 {
     vertical-align: bottom;
     color: white;
     display: table-cell;
-}   
+}
 
 #intro {
     background-color: #e6e6e6;
@@ -127,6 +149,19 @@ div#header-div {
     padding-bottom: 30px;
     padding-right: 50px;
     padding-left: 50px;
+}
+
+div#paragraph {
+    background-color: #bfbfbf;
+    background-size: 100%;
+    margin-left: 0%;
+    margin-right: 0%;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-style: dashed;
+    border-color: black;
 }
 
 #graphSVG line {
