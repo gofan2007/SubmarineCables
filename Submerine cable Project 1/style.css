@@ -16,6 +16,12 @@ svg {
     margin: 0;
 }
 
+h1 {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 40;
+    color: #292929;
+}
+
 h2 {
     font-family: 'Archivo Narrow', sans-serif;
     font-size: 30;
@@ -72,10 +78,11 @@ div#header-div {
     margin:0px;
     background: white;
     width: 100%;
-    height: 40%;
-    background-image: url('images/fiberoptic.jpg');
+    height: 20%;
+    background-image: url('images/fiberoptic.png');
     background-position: bottom left;
     background-repeat: no-repeat;
+    background-size: cover;
     text-align: center;
     vertical-align: middle;
     display: table;
@@ -86,15 +93,33 @@ div#header-div {
     max-height: 100%;
 }
 
-#header-div h2 {
+#header-div h1 {
     text-align: center;
     display: table-cell;
     vertical-align: middle;
     color: white;
 }
 
+#header-div h6 {
+    vertical-align: bottom;
+    color: white;
+    display: table-cell;
+}   
+
 #intro {
-    background-color: #bfbfbf;
+    background-color: #e6e6e6;
+    background-size: 100%;
+    margin-left: 0%;
+    margin-right: 0%;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    padding-right: 50px;
+    padding-left: 50px;
+    border: 1px solid black;
+}
+
+#outro {
+    background-color: #e6e6e6;
     background-size: 100%;
     margin-left: 0%;
     margin-right: 0%;
@@ -104,13 +129,10 @@ div#header-div {
     padding-left: 50px;
 }
 
-#outro {
-    background-color: #bfbfbf;
-    background-size: 100%;
-    margin-left: 0%;
-    margin-right: 0%;
-    padding-top: 20px;
-    padding-bottom: 30px;
-    padding-right: 50px;
-    padding-left: 50px;
+#graphSVG line {
+    stroke: white;
+}
+
+#graphSVG circle {
+    fill: white;
 }

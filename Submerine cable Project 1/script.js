@@ -67,7 +67,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
 
       var prevColor = "purple";
       var mapColor = "#7fcdbb";
+      var mapOceanColor = "white"
       var mapHover = "#edf8b1";
+
+      svg.style("background", mapOceanColor);
 
       g.selectAll("map1")
         .data(countries)
@@ -340,9 +343,12 @@ function generateGraph(countryName) {
     .attr("transform", "translate(" + xPadding + ", 0)")
     .call(yAxis);
   var desiredCountry = countryGDPs[countryName];
+  var nextKey = "1989 [YR1989]";
+  var key;
   for (var i = 1989; i < 2015; i++) {
-    var dateString = i.toString();
-    var key = dateString + " [YR" + dateString + "]";
+    var nextDateString = (i + 1).toString();
+    key = nextKey;
+    nextKey = nextDateString + " [YR" + nextDateString + "]";
     if (desiredCountry[key] != "..") {
       console.log(desiredCountry[key]);
       graphSVG.append("circle")
@@ -350,6 +356,14 @@ function generateGraph(countryName) {
         .attr("cy", yScale(desiredCountry[key]))
         .attr("r", 3)
         .style("fill", "black");
+      if (i != 2014) {
+        graphSVG.append("line")
+          .attr("x1", xScale(i))
+          .attr("y1", yScale(desiredCountry[key]))
+          .attr("x2", xScale(i + 1))
+          .attr("y2", yScale(desiredCountry[nextKey]))
+          .style("stroke", "black");
+      }
     }
   }
 }
