@@ -27,7 +27,7 @@ graphDiv.style("height", height)
   .style("width", width / 2)
   .style("display", "none")
   .style("background-color", "gray")
-  .style("opacity", 0.85)
+  .style("opacity", 0.95)
   .style("position", "absolute")
   .style("left", width / 2);
 var graphToggled = false;
@@ -74,7 +74,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
       countries.forEach(function(d){
         var countryName=d.properties.name;
         if(countryGDPs[countryName]==null)
-          {console.log(countryName)} 
+          {console.log(countryName)}
       });
 
       g.selectAll("map1")
@@ -344,7 +344,7 @@ function generateGraph(countryName) {
     var nextDateString = (i + 1).toString();
     key = nextKey;
     nextKey = nextDateString + " [YR" + nextDateString + "]";
-    
+
     if(desiredCountry[key] != ".."){
       gdpval.push(desiredCountry[key]);
     }
@@ -398,7 +398,7 @@ function generateGraph(countryName) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
-    .style("font-size", 20)
+    .style("font-size", 30)
     .style("font-weight", 100);
   graphSVG.append("text")
     .text("GDP per capita (thousands of $)")
@@ -407,17 +407,17 @@ function generateGraph(countryName) {
     .style("fill", "white")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
-    .style("font-size", 12)
+    .style("font-size", 18)
     .style("font-weight", 100)
     .attr("transform", "rotate(270)");
   graphSVG.append("text")
     .text("Year")
     .attr("x", "50%")
-    .attr("y", yScale(2014) + 60)
+    .attr("y", yScale(0) + 45)
     .style("fill", "white")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
-    .style("font-size", 12);
+    .style("font-size", 18);
 }
 
 svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");
