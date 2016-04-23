@@ -71,6 +71,12 @@ d3.json("data/internet-users.json", function(error1, userData) {
 
       svg.style("background", mapOceanColor);
 
+      countries.forEach(function(d){
+        var countryName=d.properties.name;
+        if(countryGDPs[countryName]==null)
+          {console.log(countryName)} 
+      });
+
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -329,6 +335,7 @@ function toggleGraphDiv() {
 function generateGraph(countryName) {
 
   var desiredCountry = countryGDPs[countryName];
+
   var nextKey = "1989 [YR1989]";
   var key;
   var gdpval = [];

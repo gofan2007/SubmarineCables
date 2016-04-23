@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "Country Name": "Afghanistan",
     "Country Code": "AFG",
@@ -3300,7 +3300,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Korea, Dem. People�s Rep.",
+    "Country Name": "Korea, Democratic People's Republic of",
     "Country Code": "PRK",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -5577,7 +5577,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Slovak Republic",
+    "Country Name": "Slovakia",
     "Country Code": "SVK",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -5940,7 +5940,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "St. Vincent and the Grenadines",
+    "Country Name": "Saint Vincent and the Grenadines",
     "Country Code": "VCT",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -6204,7 +6204,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Tanzania",
+    "Country Name": "Tanzania, United Republic of",
     "Country Code": "TZA",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -6831,7 +6831,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Venezuela, RB",
+    "Country Name": "Venezuela, Bolivarian Republic of",
     "Country Code": "VEN",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -6864,7 +6864,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Vietnam",
+    "Country Name": "Viet Nam",
     "Country Code": "VNM",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -6897,7 +6897,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Virgin Islands (U.S.)",
+    "Country Name": "Virgin Islands, U.S.",
     "Country Code": "VIR",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
@@ -6963,7 +6963,7 @@
     "2015 [YR2015]": ".."
   },
   {
-    "Country Name": "Yemen, Rep.",
+    "Country Name": "Yemen",
     "Country Code": "YEM",
     "Series Name": "GDP per capita (current US$)",
     "Series Code": "NY.GDP.PCAP.CD",
