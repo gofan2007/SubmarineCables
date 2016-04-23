@@ -391,7 +391,33 @@ function generateGraph(countryName) {
       }
     }
   }
-
+  graphSVG.append("text")
+    .text(countryName)
+    .attr("x", "50%")
+    .attr("y", "7%")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 20)
+    .style("font-weight", 100);
+  graphSVG.append("text")
+    .text("GDP per capita (thousands of $)")
+    .attr("x", "-50%")
+    .attr("y", xScale(1989) - 80)
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 12)
+    .style("font-weight", 100)
+    .attr("transform", "rotate(270)");
+  graphSVG.append("text")
+    .text("Year")
+    .attr("x", "50%")
+    .attr("y", yScale(2014) + 60)
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 12);
 }
 
 svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");
