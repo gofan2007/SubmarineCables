@@ -38,7 +38,7 @@ var mapHover = "#edf8b1";
 function resetMap(){
     g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
     //g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
-    d3.selectAll("path").style("fill", mapColor);
+    d3.selectAll(".map1").style("fill", mapColor);
 }
 
 //allow to double click and zoom out
@@ -57,8 +57,6 @@ d3.json("data/gdps.json", function(error, data) {
   data.forEach(function(country) {
     countryGDPs[country["Country Name"]] = country;
   })
-  //console.log(countryGDPs);
-  //generateGraph("United States");
 });
 
 d3.json("data/internet-users.json", function(error1, userData) {
@@ -177,153 +175,175 @@ d3.json("data/internet-users.json", function(error1, userData) {
           resetMap();
         }
       };
+      fetchCableData();
   });
 });
 
-d3.json("data/cable_data.json", function(error, cables) {
-  d3.json("data/landing_points.json", function(error3, landingPoints) {
-    landingPoints.forEach(function(landingPoint){
-    var name = landingPoint.name;
-    name = name.split(", ");
-    landingPoint.country = name[name.length-1];
-    var[lon,lat,alt] = landingPoint.coordinates
-                                .replace("<Point><coordinates>","")
-                                .replace("</coordinates></Point>","")
-                                .split(",");
-    landingPoint.coordinates=[lon,lat];
-    });
+var globalCables;
+var globalLandings;
+var cableIDtoCable = {};
+var countryToCableID = {};
 
-  var cables_global = cables;
-  if (error) { return console.log(error); }
-  cables.forEach(function(cable) {
-    var coordinates = cable.coordinates;
-    var temp =[];
-    var temp2 =[];
-    coordinates = coordinates
-      .replace(/<LineString><coordinates>/g,"")
-      .replace("</MultiGeometry>",'')
-      .replace("<MultiGeometry>",'')
-      .split("</coordinates></LineString>");
-    coordinates.pop();
-    cable.coordinates = coordinates;
-    //console.log(cable.coordinates)
-  });
+function fetchCableData() {
+  d3.json("data/cable_data.json", function(error, cables) {
+    globalCables = cables;
+    d3.json("data/landing_points.json", function(error3, landingPoints) {
+      globalLandings = landingPoints;
+      landingPoints.forEach(function(landingPoint) {
+        var name = landingPoint.name;
+        name = name.split(", ");
+        landingPoint.country = name[name.length-1];
+        var[lon,lat,alt] = landingPoint.coordinates
+                          .replace("<Point><coordinates>","")
+                          .replace("</coordinates></Point>","")
+                          .split(",");
+        landingPoint.coordinates=[lon, lat];
 
-  function coordToString(coordinates,projection) {
-    var result =[];
-    var lonMin = Math.min(), lonMax = Math.max(), latMin = Math.min(), latMax = Math.max(),
-      cableHeight, cableWidth, min, center, lonArray = [],
-      latArray=[];
-    coordinates.forEach(function(path) {
-      var pathString = "";
-      var pathCords = path.split(" ");
-      pathCords.forEach(function(points){
-        [lon,lat,alt] = points.split(",");
-        //no projection lon lat
-        lonArray.push(lon);latArray.push(lat);
-        [lon,lat] = projection([lon,lat]);
-        if(lon>lonMax){lonMax = lon;}
-        if(lon<lonMin){lonMin = lon;}
-        if(lat>latMax){latMax = lat;}
-        if(lat<latMin){latMin = lat;}
-        pathString += lon + "," + lat + " ";
-      });
-      result.push(pathString);
-    });
-
-    [lonMinOri, lonMaxOri, latMinOri, latMaxOri] = [d3.min(lonArray), d3.max(lonArray), d3.min(latArray), d3.max(latArray)];
-
-    var dist1 = lonMax - lonMin;
-    var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
-    if (dist1 < dist2) {
-      center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
-      cableWidth = dist1;
-    } else {
-      center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2];
-      cableWidth = dist2 / 0.9;
-    }
-
-    cableHeight = height / (latMax - latMin) / 1.5;
-    cableWidth = width / 1.5 / cableWidth / 2.2;
-    min = cableWidth;
-    if (cableHeight < cableWidth){
-      min = cableHeight;
-    }
-
-    return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
-  }
-      //add polylines
-  var color = "black",
-  color2 = "black",
-  stroke_width,
-  opacity = 0;
-  cables.forEach(function(cable) {
-    if (cable.year < 2010) {
-      color = "orange";
-      color2 = "orange";
-      opacity = 0.8;
-    } else {
-      color = "#00B24C";
-      color2 = "#00B24C";
-      opacity = 0.7;
-    }
-
-    var coordToStringResult = coordToString(cable.coordinates,projection);
-    var coordToStringResult2 = coordToString(cable.coordinates,projection2);
-
-
-    (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
-      g.append("polyline")
-      .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
-      .attr("points",paths)
-      .attr("id","cable"+cable.cable_id)
-      .attr("title",cable.id)
-      .on("click", function() {
-        var k = coordToStringResult.min;
-        //console.log(coordToStringResult)
-        var[x,y] = coordToStringResult.center;
-        g.transition().duration(800)
-        .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
-        var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
-
-        d3.selectAll("circle").remove();
-        cableLandingPoints.forEach(function(d){
-          var coord1 = projection(d.coordinates),
-              coord2 = projection2(d.coordinates);
-
-          g.append("circle")
-           .attr("cx",coord1[0])
-           .attr("cy",coord1[1])
-           .attr("r",8);
-
-          g.append("circle")
-           .attr("cx",coord2[0])
-           .attr("cy",coord2[1])
-           .attr("r",8);
-        });
-
-
-        d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
-        d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
-        if (!graphToggled) {
-          toggleGraphDiv();
+        if (countryToCableID[landingPoint.country] == null) {
+          countryToCableID[landingPoint.country] = [landingPoint.cable_id]
+        } else {
+          if (countryToCableID[landingPoint.country].indexOf(landingPoint.cable_id) == -1) {
+            //check to see we don't duplicate cables
+            countryToCableID[landingPoint.country].push(landingPoint.cable_id);
+          }
         }
-
-      })
-      .on("mouseover", function() {
-          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
-      })
-      .on("mouseout", function() {
-          d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1.6");
       });
+
+    var cables_global = cables;
+    if (error) { return console.log(error); }
+    cables.forEach(function(cable) {
+      var coordinates = cable.coordinates;
+      var temp =[];
+      var temp2 =[];
+      coordinates = coordinates
+        .replace(/<LineString><coordinates>/g,"")
+        .replace("</MultiGeometry>",'')
+        .replace("<MultiGeometry>",'')
+        .split("</coordinates></LineString>");
+      coordinates.pop();
+      cable.coordinates = coordinates;
+      cableIDtoCable[cable.cable_id] = cable;
+      //console.log(cable.coordinates)
     });
 
-    var coordToStringResult2 = coordToString(cable.coordinates,projection2);
 
 
+    function coordToString(coordinates,projection) {
+      var result =[];
+      var lonMin = Math.min(), lonMax = Math.max(), latMin = Math.min(), latMax = Math.max(),
+        cableHeight, cableWidth, min, center, lonArray = [],
+        latArray=[];
+      coordinates.forEach(function(path) {
+        var pathString = "";
+        var pathCords = path.split(" ");
+        pathCords.forEach(function(points){
+          [lon,lat,alt] = points.split(",");
+          //no projection lon lat
+          lonArray.push(lon);latArray.push(lat);
+          [lon,lat] = projection([lon,lat]);
+          if(lon>lonMax){lonMax = lon;}
+          if(lon<lonMin){lonMin = lon;}
+          if(lat>latMax){latMax = lat;}
+          if(lat<latMin){latMin = lat;}
+          pathString += lon + "," + lat + " ";
+        });
+        result.push(pathString);
+      });
+
+      [lonMinOri, lonMaxOri, latMinOri, latMaxOri] = [d3.min(lonArray), d3.max(lonArray), d3.min(latArray), d3.max(latArray)];
+
+      var dist1 = lonMax - lonMin;
+      var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
+      if (dist1 < dist2) {
+        center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
+        cableWidth = dist1;
+      } else {
+        center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2];
+        cableWidth = dist2 / 0.9;
+      }
+
+      cableHeight = height / (latMax - latMin) / 1.5;
+      cableWidth = width / 1.5 / cableWidth / 2.2;
+      min = cableWidth;
+      if (cableHeight < cableWidth){
+        min = cableHeight;
+      }
+
+      return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
+    }
+        //add polylines
+    var color = "black",
+    color2 = "black",
+    stroke_width,
+    opacity = 0;
+    cables.forEach(function(cable) {
+      if (cable.year < 2010) {
+        color = "orange";
+        color2 = "orange";
+        opacity = 0.8;
+      } else {
+        color = "#00B24C";
+        color2 = "#00B24C";
+        opacity = 0.7;
+      }
+
+      var coordToStringResult = coordToString(cable.coordinates,projection);
+      var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+
+
+      (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
+        g.append("polyline")
+        .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
+        .attr("points",paths)
+        .attr("id","cable"+cable.cable_id)
+        .attr("title",cable.id)
+        .on("click", function() {
+          var k = coordToStringResult.min;
+          //console.log(coordToStringResult)
+          var[x,y] = coordToStringResult.center;
+          g.transition().duration(800)
+          .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+          var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
+
+          d3.selectAll("circle").remove();
+          cableLandingPoints.forEach(function(d){
+            var coord1 = projection(d.coordinates),
+                coord2 = projection2(d.coordinates);
+
+            g.append("circle")
+             .attr("cx",coord1[0])
+             .attr("cy",coord1[1])
+             .attr("r",8);
+
+            g.append("circle")
+             .attr("cx",coord2[0])
+             .attr("cy",coord2[1])
+             .attr("r",8);
+          });
+
+
+          d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
+          d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
+          if (!graphToggled) {
+            toggleGraphDiv();
+          }
+
+        })
+        .on("mouseover", function() {
+            d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
+        })
+        .on("mouseout", function() {
+            d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1.6");
+        });
+      });
+
+      var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+
+
+    });
+    });
   });
-  });
-});
+}
 
 function toggleGraphDiv() {
   //console.log("toggling graph");
@@ -361,14 +381,14 @@ function generateGraph(countryName) {
       gdpval.push(desiredCountry[key]);
     }
   }
-  var maxvalue = Math.max.apply(Math, gdpval);
+  var maxValue = Math.max.apply(Math, gdpval);
   console.log(gdpval);
-  console.log(maxvalue);
+  console.log(maxValue);
 
   var xPadding = 100;
   var yPadding = 100;
   var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
-  var yScale = d3.scale.linear().domain([0, maxvalue]).range([height - yPadding, yPadding]);
+  var yScale = d3.scale.linear().domain([0, maxValue]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom");
   var yAxis = d3.svg.axis().scale(yScale)
@@ -401,6 +421,22 @@ function generateGraph(countryName) {
       }
     }
   }
+
+  //console.log(cableIDtoCable[countryToCableID[countryName]].name);
+  countryToCableID[countryName].forEach(function(cableID) {
+    console.log(cableIDtoCable[cableID].name);
+    var year = cableIDtoCable[cableID].year;
+    if (year != 0) {
+      graphSVG.append("line")
+        .attr("x1", xScale(year))
+        .attr("x2", xScale(year))
+        .attr("y1", yScale(0))
+        .attr("y2", yScale(maxValue))
+        .style("stroke", "black");
+    }
+  });
+
+
   graphSVG.append("text")
     .text(countryName)
     .attr("x", "50%")
