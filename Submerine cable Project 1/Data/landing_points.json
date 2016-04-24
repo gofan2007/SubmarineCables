@@ -7450,7 +7450,7 @@
   {
     "id": "saint-maarten-sint-maarten",
     "city_id": 10728,
-    "name": "Saint Maarten, Sint Maarten",
+    "name": "Saint Maarten, Sint Maarten (Dutch part)",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>-63.073718,18.031056</coordinates></Point>",
     "cable_id": 1290
@@ -7458,7 +7458,7 @@
   {
     "id": "saint-maarten-sint-maarten",
     "city_id": 10728,
-    "name": "Saint Maarten, Sint Maarten",
+    "name": "Saint Maarten, Sint Maarten (Dutch part)",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>-63.073718,18.031056</coordinates></Point>",
     "cable_id": 1245
@@ -9074,7 +9074,7 @@
   {
     "id": "tungku-brunei",
     "city_id": 5970,
-    "name": "Tungku, Brunei",
+    "name": "Tungku, Brunei Darussalam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>114.885865,4.926374</coordinates></Point>",
     "cable_id": 1507
@@ -9082,7 +9082,7 @@
   {
     "id": "vung-tau-vietnam",
     "city_id": 6013,
-    "name": "Vung Tau, Vietnam",
+    "name": "Vung Tau, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>107.079228,10.341899</coordinates></Point>",
     "cable_id": 1739
@@ -9090,7 +9090,7 @@
   {
     "id": "vung-tau-vietnam",
     "city_id": 6013,
-    "name": "Vung Tau, Vietnam",
+    "name": "Vung Tau, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>107.079228,10.341899</coordinates></Point>",
     "cable_id": 1507
@@ -10442,7 +10442,7 @@
   {
     "id": "majuro-republic-of-marshall-islands",
     "city_id": 9060,
-    "name": "Majuro, Republic of Marshall Islands",
+    "name": "Majuro, Marshall Islands",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>171.185643,7.116217</coordinates></Point>",
     "cable_id": 1605
@@ -10450,7 +10450,7 @@
   {
     "id": "kwajalein-republic-of-marshall-islands",
     "city_id": 7879,
-    "name": "Kwajalein, Republic of Marshall Islands",
+    "name": "Kwajalein, Marshall Islands",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>167.424316,9.189751</coordinates></Point>",
     "cable_id": 1605
@@ -10778,7 +10778,7 @@
   {
     "id": "point-noire-congo-rep-",
     "city_id": 5971,
-    "name": "Point Noire, Congo, Rep.",
+    "name": "Point Noire, Congo",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>11.863648,-4.779090,0</coordinates></Point>",
     "cable_id": 1560
