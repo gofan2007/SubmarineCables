@@ -210,10 +210,10 @@ function generateWorldMap() {
             .style("fill", mapHover)
             .style("fill-opacity", 1);
 
-            
+
             toolTip=setTimeout(function (){
-              d3.select("#popup").style("display","block").text(d.properties.name); 
-            }, 500);                               
+              d3.select("#popup").style("display","block").text(d.properties.name);
+            }, 500);
             var coordinates = d3.mouse(this);
             var introHeight = d3.select("#intro")[0][0].clientHeight;
             var headerHeight = d3.select("#header-div")[0][0].clientHeight;
@@ -226,9 +226,9 @@ function generateWorldMap() {
         .on("mousemove",function(d){
           var coordinates = d3.mouse(svg[0][0]);
           d3.select("#popup").style("left", coordinates[0]+5)
-                             .style("top",introHeight+headerHeight+coordinates[1]+5); 
+                             .style("top",introHeight+headerHeight+coordinates[1]+5);
         })
-        
+
         .on("mouseout", function(d) {
             console.log("mousing out")
             clearInterval(toolTip);
@@ -419,6 +419,7 @@ function fetchLandingPoints() {
           if (clickToggle) {
             toggleGraphDiv();
             clickToggle = !clickToggle;
+            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
           }
           else if(!clickToggle) {
             toggleGraphDiv();
@@ -432,6 +433,7 @@ function fetchLandingPoints() {
               opacity = 0.7;
             }
             d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
+            d3.selectAll("circle").remove();
           }
           generateCableGraph(cable);
         })
