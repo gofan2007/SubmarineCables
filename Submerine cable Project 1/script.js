@@ -69,12 +69,6 @@ d3.json("data/internet-users.json", function(error1, userData) {
 
       svg.style("background", mapOceanColor);
 
-      countries.forEach(function(d){
-        var countryName=d.properties.name;
-        if(countryGDPs[countryName]==null)
-          {console.log(countryName)}
-      });
-
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -176,7 +170,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           // g2.transition().duration(800)
           //  .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
           //  .style("stroke-width", 1.5 / k + "px");
-          generateGraph(c.properties.name);
+          generateCountryGraph(c.properties.name);
         } else {
           resetMap();
         }
@@ -189,6 +183,7 @@ var globalCables;
 var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
+var cableIDToLandings = {};
 
 function fetchCableData() {
   d3.json("data/cable_data.json", function(error, cables) {
@@ -222,12 +217,18 @@ function fetchCableData() {
         landingPoint.coordinates=[lon, lat];
 
         if (countryToCableID[landingPoint.country] == null) {
-          countryToCableID[landingPoint.country] = [landingPoint.cable_id]
+          countryToCableID[landingPoint.country] = [landingPoint.cable_id];
         } else {
           if (countryToCableID[landingPoint.country].indexOf(landingPoint.cable_id) == -1) {
             //check to see we don't duplicate cables
             countryToCableID[landingPoint.country].push(landingPoint.cable_id);
           }
+        }
+
+        if (cableIDToLandings[landingPoint.cable_id] == null) {
+          cableIDToLandings[landingPoint.cable_id] = [landingPoint];
+        } else {
+          cableIDToLandings[landingPoint.cable_id].push(landingPoint);
         }
       });
 
@@ -349,6 +350,7 @@ function fetchCableData() {
           if (!graphToggled) {
             toggleGraphDiv();
           }
+          generateCableGraph(cable);
 
         })
         .on("mouseover", function() {
@@ -373,7 +375,7 @@ function toggleGraphDiv() {
   graphToggled = !graphToggled;
 }
 
-function generateGraph(countryName) {
+function generateCountryGraph(countryName) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
   var desiredCountry = countryGDPs[countryName];
@@ -505,31 +507,10 @@ function generateCableGraph(cable) {
     return;
   }
 
-  desiredLandings.forEach(function(landing) {
-
-  });
-
-  var nextKey = "1989 [YR1989]";
-  var key;
-  var gdpval = [];
-
-  for (var i = 1989; i < 2015; i++) {
-    var nextDateString = (i + 1).toString();
-    key = nextKey;
-    nextKey = nextDateString + " [YR" + nextDateString + "]";
-
-    if(desiredCountry[key] != ".."){
-      gdpval.push(desiredCountry[key]);
-    }
-  }
-  var maxValue = Math.max.apply(Math, gdpval);
-  console.log(gdpval);
-  console.log(maxValue);
-
   var xPadding = 100;
   var yPadding = 100;
   var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
-  var yScale = d3.scale.linear().domain([0, maxValue]).range([height - yPadding, yPadding]);
+  var yScale = d3.scale.linear().domain([0, 100000]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom");
   var yAxis = d3.svg.axis().scale(yScale)
@@ -541,45 +522,47 @@ function generateCableGraph(cable) {
     .attr("transform", "translate(" + xPadding + ", 0)")
     .call(yAxis);
 
-  for (var i = 1989; i < 2015; i++) {
-    var nextDateString = (i + 1).toString();
-    key = nextKey;
-    nextKey = nextDateString + " [YR" + nextDateString + "]";
-    if (desiredCountry[key] != "..") {
-      //console.log(desiredCountry[key]);
-      graphSVG.append("circle")
-        .attr("cx", xScale(i))
-        .attr("cy", yScale(desiredCountry[key]))
-        .attr("r", 3)
-        .style("fill", "black");
-      if (i != 2014) {
-        graphSVG.append("line")
-          .attr("x1", xScale(i))
-          .attr("y1", yScale(desiredCountry[key]))
-          .attr("x2", xScale(i + 1))
-          .attr("y2", yScale(desiredCountry[nextKey]))
-          .style("stroke", "black");
+  desiredLandings.forEach(function(landing) {
+    var desiredCountry = countryGDPs[landing.country];
+    if (desiredCountry != null) {
+      var nextKey = "1989 [YR1989]";
+      var key;
+      for (var i = 1989; i < 2015; i++) {
+        var nextDateString = (i + 1).toString();
+        key = nextKey;
+        nextKey = nextDateString + " [YR" + nextDateString + "]";
+        if (desiredCountry[key] != "..") {
+          //console.log(desiredCountry[key]);
+          graphSVG.append("circle")
+            .attr("cx", xScale(i))
+            .attr("cy", yScale(desiredCountry[key]))
+            .attr("r", 3)
+            .style("fill", "black");
+          if (i != 2014) {
+            graphSVG.append("line")
+              .attr("x1", xScale(i))
+              .attr("y1", yScale(desiredCountry[key]))
+              .attr("x2", xScale(i + 1))
+              .attr("y2", yScale(desiredCountry[nextKey]))
+              .style("stroke", "black");
+          }
+        }
       }
-    }
-  }
-
-  //console.log(cableIDtoCable[countryToCableID[countryName]].name);
-  countryToCableID[countryName].forEach(function(cableID) {
-    console.log(cableIDtoCable[cableID].name);
-    var year = cableIDtoCable[cableID].year;
-    if (year != 0) {
-      graphSVG.append("line")
-        .attr("x1", xScale(year))
-        .attr("x2", xScale(year))
-        .attr("y1", yScale(0))
-        .attr("y2", yScale(maxValue))
-        .style("stroke", "black");
     }
   });
 
+  var year = cable.year;
+  if (year != 0 && year <= 2014) {
+    graphSVG.append("line")
+      .attr("x1", xScale(year))
+      .attr("x2", xScale(year))
+      .attr("y1", yScale(0))
+      .attr("y2", yScale(100000))
+      .style("stroke", "black");
+  }
 
   graphSVG.append("text")
-    .text(countryName)
+    .text(cable.name)
     .attr("x", "50%")
     .attr("y", "7%")
     .style("fill", "white")
