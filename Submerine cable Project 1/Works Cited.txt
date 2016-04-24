@@ -1,8 +1,0 @@
-GDP Data:
-http://data.worldbank.org/indicator/NY.GDP.PCAP.CD
-
-Cable Animation:
-http://www.datacottage.com/nch/fibre.htm#.VxppRZMrKRt
-
-Internet Penetration:
-http://www.igi-global.com/dictionary/internet-penetration/15438
