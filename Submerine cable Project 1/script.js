@@ -32,8 +32,9 @@ graphDiv.style("height", height)
   .style("left", width / 2);
 var graphToggled = false;
 var mapColor = "#5abfa8";
-var mapOceanColor = "white"
+var mapOceanColor = "white`"
 var mapHover = "#edf8b1";
+var clickToggle = true;
 
 function resetMap(){
     g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
@@ -42,12 +43,12 @@ function resetMap(){
 }
 
 //allow to double click and zoom out
-svg.on("dblclick",function() {
-  if (graphToggled) {
-    toggleGraphDiv();
-  }
-  resetMap();
-});
+// svg.on("dblclick",function() {
+//   if (graphToggled) {
+//     toggleGraphDiv();
+//   }
+//   resetMap();
+// });
 
 var opacityScale = d3.scale.linear().domain([0,1]).range([0.1,1]);
 var countryGDPs = {};
@@ -86,8 +87,8 @@ d3.json("data/internet-users.json", function(error1, userData) {
           })
         .attr("title", function(d){return d.properties.name})
         .attr("id", function(d){return "country" + d.id;})
-        .on("click", function(d){ worldMapClicked(d, true) })
-        .on("dblclick", function(d){ worldMapClicked(d, false) })
+        .on("click", function(d){ worldMapClicked(d, clickToggle) })
+        //.on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
             d3.select("#country" + d.id)
             .style("fill", mapHover)
@@ -112,8 +113,8 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .style("fill-opacity", function(d){ return calcOpacity(d) })
        .attr("title", function(d){ return d.properties.name; })
        .attr("id", function(d){ return "country"+d.id; })
-       .on("click", function(d){ worldMapClicked(d,true); })
-       .on("dblclick", function(d){ worldMapClicked(d,false); })
+       .on("click", function(d){ worldMapClicked(d, clickToggle); })
+       //.on("dblclick", function(d){ worldMapClicked(d,false); })
        .on("mouseover", function(d) {
             d3.select("#country" + d.id).style("fill", mapHover);
         })
@@ -135,6 +136,11 @@ d3.json("data/internet-users.json", function(error1, userData) {
 
       function worldMapClicked(c, isSingleClick) {
         if (!graphToggled) {
+          toggleGraphDiv();
+        }
+        clickToggle = !clickToggle;
+        if(clickToggle)
+        {
           toggleGraphDiv();
         }
         if (isSingleClick) {
