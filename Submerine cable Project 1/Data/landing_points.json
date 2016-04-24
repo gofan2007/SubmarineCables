@@ -1146,7 +1146,7 @@
   {
     "id": "ola-russia",
     "city_id": 15834,
-    "name": "Ola, Russia",
+    "name": "Ola, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>151.283308,59.583380,0</coordinates></Point>",
     "cable_id": 1825
@@ -1154,7 +1154,7 @@
   {
     "id": "okha-russia",
     "city_id": 15833,
-    "name": "Okha, Russia",
+    "name": "Okha, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>142.942492,53.577523</coordinates></Point>",
     "cable_id": 1825
@@ -1162,7 +1162,7 @@
   {
     "id": "ust-bolsheretsk-russia",
     "city_id": 15832,
-    "name": "Ust-Bolsheretsk, Russia",
+    "name": "Ust-Bolsheretsk, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>156.287017,52.812387</coordinates></Point>",
     "cable_id": 1825
@@ -1226,7 +1226,7 @@
   {
     "id": "ilyich-russia",
     "city_id": 15111,
-    "name": "Ilyich, Russia",
+    "name": "Ilyich, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>36.770863,45.423621</coordinates></Point>",
     "cable_id": 1822
@@ -5986,7 +5986,7 @@
   {
     "id": "sochi-russia",
     "city_id": 5092,
-    "name": "Sochi, Russia",
+    "name": "Sochi, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>39.725842,43.615516</coordinates></Point>",
     "cable_id": 1192
@@ -6266,7 +6266,7 @@
   {
     "id": "novorossiysk-russia",
     "city_id": 5117,
-    "name": "Novorossiysk, Russia",
+    "name": "Novorossiysk, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>37.772816,44.723621</coordinates></Point>",
     "cable_id": 1192
@@ -7146,7 +7146,7 @@
   {
     "id": "logi-russia",
     "city_id": 9102,
-    "name": "Logi, Russia",
+    "name": "Logi, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>28.499871,59.799883</coordinates></Point>",
     "cable_id": 1610
@@ -8626,7 +8626,7 @@
   {
     "id": "nevelsk-russia",
     "city_id": 8366,
-    "name": "Nevelsk, Russia",
+    "name": "Nevelsk, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>141.859094,46.684460,0</coordinates></Point>",
     "cable_id": 1528
@@ -8698,7 +8698,7 @@
   {
     "id": "nakhodka-russia",
     "city_id": 5362,
-    "name": "Nakhodka, Russia",
+    "name": "Nakhodka, Russian Federation",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>132.874040,42.812294,0</coordinates></Point>",
     "cable_id": 1518

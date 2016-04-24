@@ -51,6 +51,7 @@ svg.on("dblclick",function() {
 
 var opacityScale = d3.scale.linear().domain([0,1]).range([0.1,1]);
 var countryGDPs = {};
+var countries;
 
 d3.json("data/gdps.json", function(error, data) {
   //create dictionary mapping country name to country dictionary for fast lookup
@@ -63,16 +64,10 @@ d3.json("data/internet-users.json", function(error1, userData) {
   if (error1) { return console.log(error1); }
   d3.json("data/world-topo-min.json", function(error2, world) {
       if (error2) { return console.log(error2); }
-      var countries = topojson.feature(world, world.objects.countries).features;
+      countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
 
       svg.style("background", mapOceanColor);
-
-      countries.forEach(function(d){
-        var countryName=d.properties.name;
-        if(countryGDPs[countryName]==null)
-          {console.log(countryName)}
-      });
 
       g.selectAll("map1")
         .data(countries)
@@ -170,7 +165,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           // g2.transition().duration(800)
           //  .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
           //  .style("stroke-width", 1.5 / k + "px");
-          generateGraph(c.properties.name);
+          generateCountryGraph(c.properties.name);
         } else {
           resetMap();
         }
@@ -183,6 +178,7 @@ var globalCables;
 var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
+var cableIDToLandings = {};
 
 function fetchCableData() {
   d3.json("data/cable_data.json", function(error, cables) {
@@ -193,11 +189,14 @@ function fetchCableData() {
         var name = landingPoint.name;
         name = name.split(", ");
         landingPoint.country = name[name.length-1];
+        // console.log(landingPoint.country);
         var[lon,lat,alt] = landingPoint.coordinates
                           .replace("<Point><coordinates>","")
                           .replace("</coordinates></Point>","")
                           .split(",");
         landingPoint.coordinates=[lon, lat];
+
+        if (landingPoint.country == "Russian Federation") { console.log("here"); }
 
         if (countryToCableID[landingPoint.country] == null) {
           countryToCableID[landingPoint.country] = [landingPoint.cable_id]
@@ -207,7 +206,25 @@ function fetchCableData() {
             countryToCableID[landingPoint.country].push(landingPoint.cable_id);
           }
         }
+
+        if (cableIDToLandings[landingPoint.cable_id] == null) {
+          cableIDToLandings[landingPoint.cable_id] = [landingPoint];    
+        } else {
+          if (cableIDToLandings[landingPoint.cable_id].indexOf(landingPoint) == -1) {
+            cableIDToLandings[landingPoint.cable_id].push(landingPoint);
+          }
+        }
       });
+
+    var count = 0;
+    countries.forEach(function(d){
+      var countryName=d.properties.name;
+      if(countryToCableID[countryName]==null) {
+        console.log(countryName)
+        count += 1;
+      }
+    });
+    console.log(count);
 
     var cables_global = cables;
     if (error) { return console.log(error); }
@@ -351,7 +368,7 @@ function toggleGraphDiv() {
   graphToggled = !graphToggled;
 }
 
-function generateGraph(countryName) {
+function generateCountryGraph(countryName) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
   var desiredCountry = countryGDPs[countryName];
@@ -422,11 +439,129 @@ function generateGraph(countryName) {
     }
   }
 
+  console.log(countryName);
+  countryToCableID[countryName].forEach(function(cableID) {
+    console.log(cableIDtoCable[cableID].name);
+    var year = cableIDtoCable[cableID].year;
+    if (year != 0 && year <= 2014) {
+      graphSVG.append("line")
+        .attr("x1", xScale(year))
+        .attr("x2", xScale(year))
+        .attr("y1", yScale(0))
+        .attr("y2", yScale(maxValue))
+        .style("stroke", "black");
+    }
+  });
+
+
+  graphSVG.append("text")
+    .text(countryName)
+    .attr("x", "50%")
+    .attr("y", "7%")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 30)
+    .style("font-weight", 100);
+  graphSVG.append("text")
+    .text("GDP per capita (thousands of $)")
+    .attr("x", "-50%")
+    .attr("y", xScale(1989) - 80)
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 18)
+    .style("font-weight", 100)
+    .attr("transform", "rotate(270)");
+  graphSVG.append("text")
+    .text("Year")
+    .attr("x", "50%")
+    .attr("y", yScale(0) + 45)
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 18);
+}
+
+function generateCableGraph(cable) {
+  var graphSVG = d3.select("#graphSVG");
+  graphSVG.selectAll("*").remove();
+  var desiredLandings = cableIDToLandings[cable.cable_id];
+  if (desiredLandings.length == 0) {
+    graphSVG.append("text")
+    .text("Data N/A")
+    .attr("x", "50%")
+    .attr("y", "50%")
+    .style("fill", "white")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 20);
+    return;
+  }
+
+  desiredLandings.forEach(function(landing) {
+
+  });
+
+  var nextKey = "1989 [YR1989]";
+  var key;
+  var gdpval = [];
+
+  for (var i = 1989; i < 2015; i++) {
+    var nextDateString = (i + 1).toString();
+    key = nextKey;
+    nextKey = nextDateString + " [YR" + nextDateString + "]";
+
+    if(desiredCountry[key] != ".."){
+      gdpval.push(desiredCountry[key]);
+    }
+  }
+  var maxValue = Math.max.apply(Math, gdpval);
+  console.log(gdpval);
+  console.log(maxValue);
+
+  var xPadding = 100;
+  var yPadding = 100;
+  var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
+  var yScale = d3.scale.linear().domain([0, maxValue]).range([height - yPadding, yPadding]);
+  var xAxis = d3.svg.axis().scale(xScale)
+    .orient("bottom");
+  var yAxis = d3.svg.axis().scale(yScale)
+    .orient("left");
+  graphSVG.append("g").attr("class", "axis")
+    .attr("transform", "translate(0," + (height - yPadding) + ")")
+    .call(xAxis);
+  graphSVG.append("g").attr("class", "axis")
+    .attr("transform", "translate(" + xPadding + ", 0)")
+    .call(yAxis);
+
+  for (var i = 1989; i < 2015; i++) {
+    var nextDateString = (i + 1).toString();
+    key = nextKey;
+    nextKey = nextDateString + " [YR" + nextDateString + "]";
+    if (desiredCountry[key] != "..") {
+      //console.log(desiredCountry[key]);
+      graphSVG.append("circle")
+        .attr("cx", xScale(i))
+        .attr("cy", yScale(desiredCountry[key]))
+        .attr("r", 3)
+        .style("fill", "black");
+      if (i != 2014) {
+        graphSVG.append("line")
+          .attr("x1", xScale(i))
+          .attr("y1", yScale(desiredCountry[key]))
+          .attr("x2", xScale(i + 1))
+          .attr("y2", yScale(desiredCountry[nextKey]))
+          .style("stroke", "black");
+      }
+    }
+  }
+
   //console.log(cableIDtoCable[countryToCableID[countryName]].name);
   countryToCableID[countryName].forEach(function(cableID) {
     console.log(cableIDtoCable[cableID].name);
     var year = cableIDtoCable[cableID].year;
-    if (year != 0) {
+    if (year != 0 && year <= 2014) {
       graphSVG.append("line")
         .attr("x1", xScale(year))
         .attr("x2", xScale(year))
