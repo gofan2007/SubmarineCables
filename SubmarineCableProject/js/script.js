@@ -79,7 +79,10 @@ function fetchInternetPenData() {
     } else {
       penetrationData = userData;
       generateWorldMap();
-      
+    }
+  });
+}
+
 function calcOpacity(d){
   // var internet_user_data = penetrationData.find(function(data) {
   //   return data.Country == d.properties.name;
@@ -89,13 +92,13 @@ function calcOpacity(d){
   // }
   // return opacityScale(internet_user_data.Internet);
   var desiredCountry = countryGDPs[d.properties.name];
-  var numCables = countryToCableID[d.properties.name];
-  if (desiredCountry != null && numCables != null && numCables.length != 0) {
+  var cables = countryToCableID[d.properties.name];
+  if (desiredCountry != null && cables != null && cables.length != 0) {
     var earliestGDP = findEarliestGDP(desiredCountry);
     var latestGDP = findLatestGDP(desiredCountry);
     var percentChange = (latestGDP - earliestGDP) / earliestGDP;
-    console.log(d.properties.name + " " + percentChange / numCables.length);
-    return opacityScale(percentChange / numCables.length);
+    console.log(d.properties.name + " " + percentChange / cables.length);
+    return opacityScale(percentChange / cables.length);
   } else {
     return 0;
   }

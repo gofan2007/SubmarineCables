@@ -71,18 +71,28 @@ function generateCountryGraph(countryName) {
 
   console.log(countryName);
   if (countryToCableID[countryName] != null) {
+    var yearToNumberOfCables = {};
     countryToCableID[countryName].forEach(function(cableID) {
-      console.log(cableIDtoCable[cableID].name);
+      //console.log(cableIDtoCable[cableID].name);
       var year = cableIDtoCable[cableID].year;
       if (year != 0 && year <= 2014) {
-        graphSVG.append("line")
-          .attr("x1", xScale(year))
-          .attr("x2", xScale(year))
-          .attr("y1", yScale(0))
-          .attr("y2", yScale(maxValue))
-          .style("stroke", "black");
+        if (yearToNumberOfCables[year] == null) {
+          yearToNumberOfCables[year] = 1;
+        } else {
+          yearToNumberOfCables[year] += 1;
+        }
       }
     });
+
+    for (var key in yearToNumberOfCables) {
+      graphSVG.append("line")
+          .attr("x1", xScale(key))
+          .attr("x2", xScale(key))
+          .attr("y1", yScale(0))
+          .attr("y2", yScale(maxValue))
+          .style("stroke", "black")
+          .style("stroke-width", yearToNumberOfCables[key]) * 2;
+    }
   }
 
   graphSVG.append("text")
