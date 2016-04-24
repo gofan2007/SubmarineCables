@@ -74,6 +74,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           {console.log(countryName)}
       });
 
+      var prevColor ;
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -86,16 +87,23 @@ d3.json("data/internet-users.json", function(error1, userData) {
           })
         .attr("title", function(d){return d.properties.name})
         .attr("id", function(d){return "country" + d.id;})
-        .on("click", function(d){ worldMapClicked(d, true) })
+        .on("click", function(d){
+          console.log("click") 
+          worldMapClicked(d, true);
+          prevColor = d3.select("#country" + d.id)[0][0].style.fill;
+           })
         .on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
+          console.log("mouseover")
+            prevColor = d3.select("#country" + d.id)[0][0].style.fill;
             d3.select("#country" + d.id)
             .style("fill", mapHover)
             .style("fill-opacity", 1);
         })
         .on("mouseout", function(d) {
+          console.log("mouseout")
             d3.select("#country" + d.id)
-            .style("fill", mapColor)
+            .style("fill", prevColor)
             .style("fill-opacity", function(d){
               return calcOpacity(d);
             });
@@ -158,7 +166,7 @@ d3.json("data/internet-users.json", function(error1, userData) {
           if(c.properties.name == "France"){ k = 7; }
           else if (c.properties.name == "United States") { k = 1.5; }
 
-          d3.selectAll("path").style("fill", mapColor);
+          d3.selectAll("path").style("fill", "grey");
 
           //g.append("circle").attr("cx",x).attr("cy",y).attr("r",5);
           var countryPath = d3.selectAll("#country" + c.id)[0][0];
