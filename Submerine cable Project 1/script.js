@@ -69,6 +69,8 @@ d3.json("data/internet-users.json", function(error1, userData) {
 
       svg.style("background", mapOceanColor);
 
+      var toolTip = setTimeout;
+
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -88,14 +90,19 @@ d3.json("data/internet-users.json", function(error1, userData) {
             .style("fill", mapHover)
             .style("fill-opacity", 1);
             var coordinates = d3.mouse(this);
+            var introHeight = d3.select("#intro")[0][0].clientHeight;
+            var headerHeight = d3.select("#header-div")[0][0].clientHeight;
             console.log(coordinates)
-            d3.select("#popup").style("display","block")
+            toolTip(function(){ d3.select("#popup").style("display","block")
                                 .text(d.properties.name)
-                                .style("left", coordinates[0])
-                                .style("top",coordinates[1]);
+                                .style("left", coordinates[0]+5)
+                                .style("top",introHeight+headerHeight+coordinates[1]+10); }, 1000);
+            
                                 
         })
         .on("mouseout", function(d) {
+            clearInterval(toolTip);
+
             d3.select("#country" + d.id)
             .style("fill", mapColor)
             .style("fill-opacity", function(d){
