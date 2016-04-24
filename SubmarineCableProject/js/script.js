@@ -1,8 +1,6 @@
+//Global Variables
 var width = window.innerWidth;
 var height = window.innerHeight;
-// A projection is a particular type of scale, that maps
-// a pair of LONGITUDE, LATITUDE coordinates (NOT the other
-// way around) to a point in pixel space.
 var projection = d3.geo.mercator()
   .translate([width / 2, (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI);
@@ -43,29 +41,22 @@ var countryGDPs = {};
 
 var penetrationData;
 
+fetchInternetPenData();
+fetchGDPs();
 
 function resetMap(){
     g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
-    //g2.transition().duration(800).attr("transform", "translate("+ 0+"," + 0 +")");
     d3.selectAll(".map1").style("fill", mapColor);
 }
 
-//allow to double click and zoom out
-// svg.on("dblclick",function() {
-//   if (graphToggled) {
-//     toggleGraphDiv();
-//   }
-//   resetMap();
-// });
-
-d3.json("data/gdps.json", function(error, data) {
-  //create dictionary mapping country name to country dictionary for fast lookup
-  data.forEach(function(country) {
-    countryGDPs[country["Country Name"]] = country;
-  })
-});
-
-fetchInternetPenData();
+function fetchGDPs() {
+  d3.json("data/gdps.json", function(error, data) {
+    //create dictionary mapping country name to country dictionary for fast lookup
+    data.forEach(function(country) {
+      countryGDPs[country["Country Name"]] = country;
+    })
+  });
+}
 
 function fetchInternetPenData() {
   d3.json("data/internet-users.json", function(error1, userData) {
@@ -163,7 +154,7 @@ function generateWorldMap() {
             var coordinates = d3.mouse(this);
             var introHeight = d3.select("#intro")[0][0].clientHeight;
             var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-            console.log(coordinates)
+            console.log(coordinates);
             toolTip(function(){ d3.select("#popup").style("display","block")
               .text(d.properties.name)
               .style("left", coordinates[0]+5)
@@ -227,7 +218,6 @@ function populateDictionaries(landingPoint) {
       countryToCableID[landingPoint.country].push(landingPoint.cable_id);
     }
   }
-
   if (cableIDToLandings[landingPoint.cable_id] == null) {
     cableIDToLandings[landingPoint.cable_id] = [landingPoint];
   } else {
@@ -235,27 +225,74 @@ function populateDictionaries(landingPoint) {
   }
 }
 
+function coordToString(coordinates,projection) {
+  var result = [];
+  var lonMin = Math.min(), lonMax = Math.max(), latMin = Math.min(), latMax = Math.max(),
+    cableHeight, cableWidth, min, center, lonArray = [],
+    latArray = [];
+  coordinates.forEach(function(path) {
+    var pathString = "";
+    var pathCords = path.split(" ");
+    pathCords.forEach(function(points){
+      [lon, lat, alt] = points.split(",");
+      //no projection lon lat
+      lonArray.push(lon);latArray.push(lat);
+      [lon,lat] = projection([lon,lat]);
+      if (lon > lonMax) { lonMax = lon; }
+      if (lon < lonMin) { lonMin = lon; }
+      if (lat > latMax) { latMax = lat; }
+      if (lat < latMin) { latMin = lat; }
+      pathString += lon + "," + lat + " ";
+    });
+    result.push(pathString);
+  });
+
+  [lonMinOri, lonMaxOri, latMinOri, latMaxOri] = [d3.min(lonArray), d3.max(lonArray), d3.min(latArray), d3.max(latArray)];
+
+  var dist1 = lonMax - lonMin;
+  var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
+  if (dist1 < dist2) {
+    center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
+    cableWidth = dist1;
+  } else {
+    center = [lonMax ,latMin + (latMax - latMin) / 2];
+    cableWidth = dist2 / 0.7;
+  }
+
+  cableHeight = height / (latMax - latMin) / 1.5;
+  cableWidth = width / 1.5 / cableWidth / 2.2;
+  min = cableWidth;
+  if (cableHeight < cableWidth){
+    min = cableHeight;
+  }
+
+  return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
+}
+
 function fetchCableData() {
   d3.json("data/cable_data.json", function(error, cables) {
     globalCables = cables;
-    d3.json("data/landing_points.json", function(error3, landingPoints) {
-      globalLandings = landingPoints;
-      landingPoints.forEach(function(landingPoint) {
-        var name = landingPoint.name;
-        name = name.split(", ");
-        landingPoint.country = name[name.length - 1];
-        correctLandingNames(landingPoint);
-        var[lon,lat,alt] = landingPoint.coordinates
-          .replace("<Point><coordinates>","")
-          .replace("</coordinates></Point>","")
-          .split(",");
-        landingPoint.coordinates=[lon, lat];
-        populateDictionaries(landingPoint);
-      });
+    fetchLandingPoints();
+  });
+}
 
-    var cables_global = cables;
+function fetchLandingPoints() {
+  d3.json("data/landing_points.json", function(error, landingPoints) {
     if (error) { return console.log(error); }
-    cables.forEach(function(cable) {
+    globalLandings = landingPoints;
+    landingPoints.forEach(function(landingPoint) {
+      var name = landingPoint.name;
+      name = name.split(", ");
+      landingPoint.country = name[name.length - 1];
+      correctLandingNames(landingPoint);
+      var[lon,lat,alt] = landingPoint.coordinates
+        .replace("<Point><coordinates>","")
+        .replace("</coordinates></Point>","")
+        .split(",");
+      landingPoint.coordinates=[lon, lat];
+      populateDictionaries(landingPoint);
+    });
+    globalCables.forEach(function(cable) {
       var coordinates = cable.coordinates;
       var temp =[];
       var temp2 =[];
@@ -267,82 +304,28 @@ function fetchCableData() {
       coordinates.pop();
       cable.coordinates = coordinates;
       cableIDtoCable[cable.cable_id] = cable;
-      //console.log(cable.coordinates)
     });
 
-
-
-    function coordToString(coordinates,projection) {
-      var result =[];
-      var lonMin = Math.min(), lonMax = Math.max(), latMin = Math.min(), latMax = Math.max(),
-        cableHeight, cableWidth, min, center, lonArray = [],
-        latArray=[];
-      coordinates.forEach(function(path) {
-        var pathString = "";
-        var pathCords = path.split(" ");
-        pathCords.forEach(function(points){
-          [lon,lat,alt] = points.split(",");
-          //no projection lon lat
-          lonArray.push(lon);latArray.push(lat);
-          [lon,lat] = projection([lon,lat]);
-          if(lon>lonMax){lonMax = lon;}
-          if(lon<lonMin){lonMin = lon;}
-          if(lat>latMax){latMax = lat;}
-          if(lat<latMin){latMin = lat;}
-          pathString += lon + "," + lat + " ";
-        });
-        result.push(pathString);
-      });
-
-      [lonMinOri, lonMaxOri, latMinOri, latMaxOri] = [d3.min(lonArray), d3.max(lonArray), d3.min(latArray), d3.max(latArray)];
-
-      var dist1 = lonMax - lonMin;
-      var dist2 = projection2([lonMinOri, 0])[0] - lonMax;
-      if (dist1 < dist2) {
-        center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
-        cableWidth = dist1;
-      } else {
-        center = [lonMax ,latMin + (latMax - latMin) / 2];
-        cableWidth = dist2 / 0.7;
-      }
-
-      cableHeight = height / (latMax - latMin) / 1.5;
-      cableWidth = width / 1.5 / cableWidth / 2.2;
-      min = cableWidth;
-      if (cableHeight < cableWidth){
-        min = cableHeight;
-      }
-
-      return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
-    }
-        //add polylines
-    var color = "black",
-    color2 = "black",
-    stroke_width,
-    opacity = 0;
-    cables.forEach(function(cable) {
+    var color = "black";
+    var opacity = 0;
+    globalCables.forEach(function(cable) {
       if (cable.year < 2010) {
         color = "orange";
-        color2 = "orange";
         opacity = 0.8;
       } else {
         color = "#00B24C";
-        color2 = "#00B24C";
         opacity = 0.7;
       }
-
       var coordToStringResult = coordToString(cable.coordinates,projection);
       var coordToStringResult2 = coordToString(cable.coordinates,projection2);
-
-
       (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
         g.append("polyline")
-        .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
+        .attr("style","fill:none;stroke:" + color + ";stroke-width:1.6")
         .attr("points",paths)
         .attr("id","cable"+cable.cable_id)
         .on("click", function() {
           var k = coordToStringResult.min;
-          //console.log(coordToStringResult)
+
           var[x,y] = coordToStringResult.center;
           g.transition().duration(800)
           .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
@@ -350,28 +333,23 @@ function fetchCableData() {
 
           d3.selectAll("circle").remove();
           cableLandingPoints.forEach(function(d){
-            var coord1 = projection(d.coordinates),
-                coord2 = projection2(d.coordinates);
-
+            var coord1 = projection(d.coordinates);
+            var coord2 = projection2(d.coordinates);
             g.append("circle")
              .attr("cx",coord1[0])
              .attr("cy",coord1[1])
              .attr("r",8);
-
             g.append("circle")
              .attr("cx",coord2[0])
              .attr("cy",coord2[1])
              .attr("r",8);
           });
-
-
           d3.selectAll("polyline").attr("style","opacity:0.5;fill:none;stroke:" + "grey" + ";stroke-width:1");
           d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:6");
           if (!graphToggled) {
             toggleGraphDiv();
           }
           generateCableGraph(cable);
-
         })
         .on("mouseover", function() {
             d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "6");
@@ -380,21 +358,12 @@ function fetchCableData() {
             d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1.6");
         });
       });
-
-      var coordToStringResult2 = coordToString(cable.coordinates,projection2);
-
-
-    });
+        var coordToStringResult2 = coordToString(cable.coordinates,projection2);
     });
   });
 }
 
 function toggleGraphDiv() {
-  //console.log("toggling graph");
   $("#graph-div").slideToggle(500);
   graphToggled = !graphToggled;
 }
-
-
-
-// svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width/2).attr("height",height).attr("stroke", "black").attr("fill", "none");
