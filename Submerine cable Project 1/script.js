@@ -79,14 +79,21 @@ d3.json("data/internet-users.json", function(error1, userData) {
         .style("fill-opacity", function(d){
             return calcOpacity(d);
           })
-        .attr("title", function(d){return d.properties.name})
         .attr("id", function(d){return "country" + d.id;})
         .on("click", function(d){ worldMapClicked(d, clickToggle) })
         //.on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
+
             d3.select("#country" + d.id)
             .style("fill", mapHover)
             .style("fill-opacity", 1);
+            var coordinates = d3.mouse(this);
+            console.log(coordinates)
+            d3.select("#popup").style("display","block")
+                                .text(d.properties.name)
+                                .style("left", coordinates[0])
+                                .style("top",coordinates[1]);
+                                
         })
         .on("mouseout", function(d) {
             d3.select("#country" + d.id)
@@ -94,6 +101,8 @@ d3.json("data/internet-users.json", function(error1, userData) {
             .style("fill-opacity", function(d){
               return calcOpacity(d);
             });
+            d3.select("#popup").style("display","none");
+
         });
 
 
@@ -105,7 +114,6 @@ d3.json("data/internet-users.json", function(error1, userData) {
        .style("fill", mapColor)
        .style("stroke", "#888")
        .style("fill-opacity", function(d){ return calcOpacity(d) })
-       .attr("title", function(d){ return d.properties.name; })
        .attr("id", function(d){ return "country"+d.id; })
        .on("click", function(d){ worldMapClicked(d, clickToggle); })
        //.on("dblclick", function(d){ worldMapClicked(d,false); })
@@ -281,8 +289,8 @@ function fetchCableData() {
         center = [lonMin + dist1 / 2, latMin + (latMax - latMin) / 2];
         cableWidth = dist1;
       } else {
-        center = [lonMax + (dist2 / 7),latMin + (latMax - latMin) / 2];
-        cableWidth = dist2 / 0.9;
+        center = [lonMax ,latMin + (latMax - latMin) / 2];
+        cableWidth = dist2 / 0.7;
       }
 
       cableHeight = height / (latMax - latMin) / 1.5;
@@ -319,7 +327,6 @@ function fetchCableData() {
         .attr("style","fill:none;stroke:"+color+";stroke-width:1.6")
         .attr("points",paths)
         .attr("id","cable"+cable.cable_id)
-        .attr("title",cable.id)
         .on("click", function() {
           var k = coordToStringResult.min;
           //console.log(coordToStringResult)
