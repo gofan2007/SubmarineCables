@@ -134,6 +134,10 @@ function generateWorldMap() {
       var isMouseDown = false;
       svg.style("background", mapOceanColor);
       var toolTip = setTimeout;
+
+      var introHeight = d3.select("#intro")[0][0].clientHeight;
+      var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -148,28 +152,34 @@ function generateWorldMap() {
         .on("click", function(d){ worldMapClicked(d, clickToggle) })
         //.on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
+
             d3.select("#country" + d.id)
             .style("fill", mapHover)
             .style("fill-opacity", 1);
-            var coordinates = d3.mouse(this);
-            var introHeight = d3.select("#intro")[0][0].clientHeight;
-            var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-            console.log(coordinates);
-            toolTip(function(){ d3.select("#popup").style("display","block")
-              .text(d.properties.name)
-              .style("left", coordinates[0]+5)
-              .style("top",introHeight+headerHeight+coordinates[1]+10); }, 1000);                      
+
+            
+            toolTip=setTimeout(function (){
+              d3.select("#popup").style("display","block").text(d.properties.name); 
+            }, 500);                               
         })
+        .on("mousemove",function(d){
+          var coordinates = d3.mouse(svg[0][0]);
+          d3.select("#popup").style("left", coordinates[0]+5)
+                             .style("top",introHeight+headerHeight+coordinates[1]+5); 
+        })
+        
         .on("mouseout", function(d) {
+            console.log("mousing out")
             clearInterval(toolTip);
+
             d3.select("#country" + d.id)
             .style("fill", mapColor)
             .style("fill-opacity", function(d){
               return calcOpacity(d);
             });
             d3.select("#popup").style("display","none");
-        });
 
+        });
       g.selectAll("map2")
         .data(countries)
         .enter().append("path")
