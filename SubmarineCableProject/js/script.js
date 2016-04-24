@@ -39,12 +39,11 @@ var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
 var cableIDToLandings = {};
-var opacityScale = d3.scale.linear().domain([0,1]).range([0.1,1]);
+var opacityScale = d3.scale.linear().domain([0, 2]).range([0.3, 1]);
 var countryGDPs = {};
 
 var penetrationData;
 
-fetchInternetPenData();
 fetchGDPs();
 
 function resetMap(){
@@ -69,6 +68,7 @@ function fetchGDPs() {
     data.forEach(function(country) {
       countryGDPs[country["Country Name"]] = country;
     })
+    fetchCableData();
   });
 }
 
@@ -79,18 +79,54 @@ function fetchInternetPenData() {
     } else {
       penetrationData = userData;
       generateWorldMap();
-    }
-  });
+      
+function calcOpacity(d){
+  // var internet_user_data = penetrationData.find(function(data) {
+  //   return data.Country == d.properties.name;
+  // });
+  // if (internet_user_data == null) {
+  //   internet_user_data = { "Internet" : 0};
+  // }
+  // return opacityScale(internet_user_data.Internet);
+  var desiredCountry = countryGDPs[d.properties.name];
+  var numCables = countryToCableID[d.properties.name];
+  if (desiredCountry != null && numCables != null && numCables.length != 0) {
+    var earliestGDP = findEarliestGDP(desiredCountry);
+    var latestGDP = findLatestGDP(desiredCountry);
+    var percentChange = (latestGDP - earliestGDP) / earliestGDP;
+    console.log(d.properties.name + " " + percentChange / numCables.length);
+    return opacityScale(percentChange / numCables.length);
+  } else {
+    return 0;
+  }
 }
 
-function calcOpacity(d){
-  var internet_user_data = penetrationData.find(function(data) {
-    return data.Country == d.properties.name;
-  });
-  if (internet_user_data == null) {
-    internet_user_data = { "Internet" : 0};
+function findEarliestGDP(country) {
+  var nextKey = "1989 [YR1989]";
+  var key;
+  for (var i = 1989; i < 2015; i++) {
+    var nextDateString = (i + 1).toString();
+    key = nextKey;
+    nextKey = nextDateString + " [YR" + nextDateString + "]";
+
+    if(country[key] != "..") {
+      return country[key];
+    }
   }
-  return opacityScale(internet_user_data.Internet);
+}
+
+function findLatestGDP(country) {
+  var prevKey = "2014 [YR2014]";
+  var key;
+  for (var i = 2014; i > 1988; i--) {
+    var prevDateString = (i - 1).toString();
+    key = prevKey;
+    prevKey = prevDateString + " [YR" + prevDateString + "]";
+
+    if (country[key] != "..") {
+      return country[key];
+    }
+  }
 }
 
 function worldMapClicked(c, isSingleClick) {
@@ -178,7 +214,7 @@ function generateWorldMap() {
             var coordinates = d3.mouse(this);
             var introHeight = d3.select("#intro")[0][0].clientHeight;
             var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-            console.log(coordinates);
+            //console.log(coordinates);
             toolTip(function(){ d3.select("#popup").style("display","block")
               .text(d.properties.name)
               .style("left", coordinates[0]+5)
@@ -219,7 +255,6 @@ function generateWorldMap() {
         .on("mouseout", function(d) {
             d3.select("#country" + d.id).style("fill", mapColor);
         });
-      fetchCableData();
   });
 };
 
@@ -414,6 +449,7 @@ function fetchLandingPoints() {
       });
         var coordToStringResult2 = coordToString(cable.coordinates,projection2);
     });
+    generateWorldMap();
   });
 }
 
