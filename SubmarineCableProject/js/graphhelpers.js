@@ -181,6 +181,7 @@ function generateCableGraph(cable) {
     .attr("transform", "translate(" + xPadding + ", 0)")
     .call(yAxis);
 
+  var countries = {};
   desiredLandings.forEach(function(landing) {
     var desiredCountry = countryGDPs[landing.country];
     if (desiredCountry != null) {
@@ -203,7 +204,27 @@ function generateCableGraph(cable) {
               .attr("y1", yScale(desiredCountry[key]))
               .attr("x2", xScale(i + 1))
               .attr("y2", yScale(desiredCountry[nextKey]))
-              .style("stroke", "black");
+              .style("stroke", "black")
+              .style("stroke-width", 3)
+              .attr("class", desiredCountry["Country Code"])
+              .on("mouseover", function() {
+                d3.selectAll("." + desiredCountry["Country Code"]).style("stroke", "orange");
+                var popup = d3.select("#popup");
+                popup.style("display", "block")
+                  .append("p").text(desiredCountry["Country Name"]);
+              })
+              .on("mousemove", function() {
+                var coordinates = d3.mouse(svg[0][0]);
+                d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
+                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+              })
+              .on("mouseout", function() {
+                clearInterval(toolTip);
+                d3.selectAll("." + desiredCountry["Country Code"]).style("stroke", "black");
+                var popup = d3.select("#popup");
+                popup.selectAll("*").remove();
+                d3.select("#popup").style("display","none");
+              });
           }
         }
       }
