@@ -11,7 +11,11 @@ var projection2 = d3.geo.mercator()
 var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
-//allow to double click and zoom out
+var graphToggled = false;
+var mapColor = "#5abfa8";
+var mapOceanColor = "white";
+var mapHoverColor = "orange";
+var graphBackgroundColor = "#b3b3b3";
 
 var svg = d3.select("#worldSVG")
   .attr("width",  width * 2)
@@ -23,15 +27,11 @@ var graphDiv = d3.select("#graph-div");
 graphDiv.style("height", height)
   .style("width", width / 2)
   .style("display", "none")
-  .style("background-color", "gray")
+  .style("background-color", graphBackgroundColor)
   .style("opacity", 0.95)
   .style("position", "absolute")
   .style("left", width / 2);
 
-var graphToggled = false;
-var mapColor = "#5abfa8";
-var mapOceanColor = "white`"
-var mapHover = "#edf8b1";
 var clickToggle = true;
 
 var globalCables;
@@ -44,11 +44,14 @@ var countryGDPs = {};
 
 var penetrationData;
 
+var toolTip;
+
 fetchGDPs();
 
 function resetMap(){
-    g.transition().duration(500).attr("transform", "translate("+ 0+"," + 0 +")");
+    g.transition().duration(500).attr("transform", "translate("+ 0 + "," + 0 +")");
     d3.selectAll(".map1").style("fill", mapColor);
+    d3.selectAll("circle").remove();
 }
 
 svg.on("dblclick", function() {
@@ -186,11 +189,8 @@ function generateWorldMap() {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
       svg.style("background", mapOceanColor);
-      var toolTip = setTimeout;
-
       var introHeight = d3.select("#intro")[0][0].clientHeight;
       var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -207,32 +207,24 @@ function generateWorldMap() {
         .on("mouseover", function(d) {
 
             d3.select("#country" + d.id)
-            .style("fill", mapHover)
+            .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
-
-
-            toolTip=setTimeout(function (){
+            var coordinates = d3.mouse(svg[0][0]);
+            toolTip = setTimeout(function () {
               d3.select("#popup").style("display","block").text(d.properties.name);
+              var introHeight = d3.select("#intro")[0][0].clientHeight;
+              var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+              d3.select("#popup").style("display", "block");
             }, 500);
-            var coordinates = d3.mouse(this);
-            var introHeight = d3.select("#intro")[0][0].clientHeight;
-            var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-            //console.log(coordinates);
-            toolTip(function(){ d3.select("#popup").style("display","block")
-              .text(d.properties.name)
-              .style("left", coordinates[0]+5)
-              .style("top",introHeight+headerHeight+coordinates[1]+10); }, 1000);
         })
         .on("mousemove",function(d){
           var coordinates = d3.mouse(svg[0][0]);
-          d3.select("#popup").style("left", coordinates[0]+5)
-                             .style("top",introHeight+headerHeight+coordinates[1]+5);
+          d3.select("#popup").style("left", coordinates[0] + 15)
+                             .style("top", introHeight + headerHeight + coordinates[1] + 15);
         })
 
         .on("mouseout", function(d) {
-            console.log("mousing out")
             clearInterval(toolTip);
-
             d3.select("#country" + d.id)
             .style("fill", mapColor)
             .style("fill-opacity", function(d){
@@ -253,7 +245,7 @@ function generateWorldMap() {
         .on("click", function(d){ worldMapClicked(d, clickToggle); })
         //.on("dblclick", function(d){ worldMapClicked(d,false); })
         .on("mouseover", function(d) {
-            d3.select("#country" + d.id).style("fill", mapHover);
+            d3.select("#country" + d.id).style("fill", mapHoverColor);
         })
         .on("mouseout", function(d) {
             d3.select("#country" + d.id).style("fill", mapColor);
@@ -408,18 +400,18 @@ function fetchLandingPoints() {
             g.append("circle")
              .attr("cx",coord1[0])
              .attr("cy",coord1[1])
-             .attr("r",8);
+             .attr("r", 3);
             g.append("circle")
              .attr("cx",coord2[0])
              .attr("cy",coord2[1])
-             .attr("r",8);
+             .attr("r", 3);
           });
           //d3.selectAll("polyline").attr("style","opacity:" + opacity + ";fill:none;stroke:" + "grey" + ";stroke-width:1");
-          d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
+          d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
           if (clickToggle) {
             toggleGraphDiv();
             clickToggle = !clickToggle;
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
+            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
           }
           else if(!clickToggle) {
             toggleGraphDiv();
@@ -432,13 +424,13 @@ function fetchLandingPoints() {
               color = "#00B24C";
               opacity = 0.7;
             }
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
+            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
             d3.selectAll("circle").remove();
           }
           generateCableGraph(cable);
         })
         .on("mouseover", function() {
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "black" + ";stroke-width:6");
+            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
         })
         .on("mouseout", function() {
           if (cable.year < 2010) {

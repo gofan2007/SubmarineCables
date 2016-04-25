@@ -8,7 +8,7 @@ function generateCountryGraph(countryName) {
     .text("Data N/A")
     .attr("x", "50%")
     .attr("y", "50%")
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 20);
@@ -91,7 +91,8 @@ function generateCountryGraph(countryName) {
           .attr("y1", yScale(0))
           .attr("y2", yScale(maxValue))
           .style("stroke", "black")
-          .style("stroke-width", yearToNumberOfCables[key]) * 2;
+          .style("stroke-width", yearToNumberOfCables[key])
+          .style("stroke-opacity", 0.5);
     }
   }
 
@@ -99,7 +100,7 @@ function generateCountryGraph(countryName) {
     .text(countryName)
     .attr("x", "50%")
     .attr("y", "7%")
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 30)
@@ -108,7 +109,7 @@ function generateCountryGraph(countryName) {
     .text("GDP per capita (thousands of $)")
     .attr("x", "-50%")
     .attr("y", xScale(1989) - 80)
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 18)
@@ -118,7 +119,7 @@ function generateCountryGraph(countryName) {
     .text("Year")
     .attr("x", "50%")
     .attr("y", yScale(0) + 45)
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 18);
@@ -133,7 +134,7 @@ function generateCableGraph(cable) {
     .text("Data N/A")
     .attr("x", "50%")
     .attr("y", "50%")
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 20);
@@ -191,14 +192,14 @@ function generateCableGraph(cable) {
       .attr("x2", xScale(year))
       .attr("y1", yScale(0))
       .attr("y2", yScale(100000))
-      .style("stroke", "black");
+      .style("stroke", "purple");
   }
 
   graphSVG.append("text")
     .text(cable.name)
     .attr("x", "50%")
     .attr("y", "7%")
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 30)
@@ -207,7 +208,7 @@ function generateCableGraph(cable) {
     .text("GDP per capita (thousands of $)")
     .attr("x", "-50%")
     .attr("y", xScale(1989) - 80)
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 18)
@@ -217,7 +218,7 @@ function generateCableGraph(cable) {
     .text("Year")
     .attr("x", "50%")
     .attr("y", yScale(0) + 45)
-    .style("fill", "white")
+    .style("fill", "black")
     .style("text-anchor", "middle")
     .style("alignment-baseline", "center")
     .style("font-size", 18);
