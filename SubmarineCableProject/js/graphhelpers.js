@@ -29,8 +29,6 @@ function generateCountryGraph(countryName) {
     }
   }
   var maxValue = Math.max.apply(Math, gdpval);
-  console.log(gdpval);
-  console.log(maxValue);
 
   var xPadding = 100;
   var yPadding = 100;
@@ -59,7 +57,7 @@ function generateCountryGraph(countryName) {
         .attr("cy", yScale(desiredCountry[key]))
         .attr("r", 3)
         .style("fill", "black");
-      if (i != 2014) {
+      if (i != 2014 && desiredCountry[nextKey] != "..") {
         graphSVG.append("line")
           .attr("x1", xScale(i))
           .attr("y1", yScale(desiredCountry[key]))
@@ -70,31 +68,57 @@ function generateCountryGraph(countryName) {
     }
   }
 
-  console.log(countryName);
   if (countryToCableID[countryName] != null) {
     var yearToNumberOfCables = {};
+    var yearToCableNames = {};
+    var seenCableIDs = {};
     countryToCableID[countryName].forEach(function(cableID) {
       //console.log(cableIDtoCable[cableID].name);
       var year = cableIDtoCable[cableID].year;
+      var name = cableIDtoCable[cableID].name;
       if (year != 0 && year <= 2014) {
         if (yearToNumberOfCables[year] == null) {
           yearToNumberOfCables[year] = 1;
-        } else {
+          yearToCableNames[year] = [name];
+          seenCableIDs[cableID] = 1;
+        } else if (seenCableIDs[cableID] == null) {
           yearToNumberOfCables[year] += 1;
+          yearToCableNames[year].push(name);
+          seenCableIDs[cableID] = 1;
         }
       }
     });
-
-    for (var key in yearToNumberOfCables) {
+    console.log(yearToCableNames);
+    Object.keys(yearToNumberOfCables).forEach(function(key) {
+      console.log(key);
       graphSVG.append("line")
-          .attr("x1", xScale(key))
-          .attr("x2", xScale(key))
-          .attr("y1", yScale(0))
-          .attr("y2", yScale(maxValue))
-          .style("stroke", "black")
-          .style("stroke-width", yearToNumberOfCables[key])
-          .style("stroke-opacity", 0.5);
-    }
+        .attr("x1", xScale(key))
+        .attr("x2", xScale(key))
+        .attr("y1", yScale(0))
+        .attr("y2", yScale(maxValue))
+        .style("stroke", "purple")
+        .style("stroke-width", yearToNumberOfCables[key] * 2)
+        .style("stroke-opacity", 0.5)
+        .on("mouseover", function() {
+          var popup = d3.select("#popup");
+          popup.style("display", "block")
+          console.log(key);
+          yearToCableNames[key].forEach(function(d) {
+            popup.append("p").text(d).attr("class", "cable-name");
+          })
+        })
+        .on("mousemove", function() {
+          var coordinates = d3.mouse(svg[0][0]);
+          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
+                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+        })
+        .on("mouseout", function() {
+          clearInterval(toolTip);
+          var popup = d3.select("#popup");
+          popup.selectAll("*").remove();
+          d3.select("#popup").style("display","none");
+        });
+    });
   }
 
   graphSVG.append("text")
@@ -173,7 +197,7 @@ function generateCableGraph(cable) {
             .attr("cy", yScale(desiredCountry[key]))
             .attr("r", 3)
             .style("fill", "black");
-          if (i != 2014) {
+          if (i != 2014 && desiredCountry[nextKey] != "..") {
             graphSVG.append("line")
               .attr("x1", xScale(i))
               .attr("y1", yScale(desiredCountry[key]))

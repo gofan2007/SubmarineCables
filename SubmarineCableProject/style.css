@@ -1,5 +1,5 @@
 body {
-    font-family: "Open Sans";
+    font-family: 'Archivo Narrow', sans-serif;
     overflow-x: hidden;
     width: 100vw;
     margin: 0;
@@ -129,6 +129,7 @@ div#header-div {
     padding-bottom: 30px;
     padding-right: 50px;
     padding-left: 50px;
+    border: 1px solid black;
 }
 
 div#paragraph {
@@ -176,5 +177,14 @@ div#paragraph {
 
 #cable {
     fill: none;
-    
+}
+
+#names {
+    width: auto;
+    height: auto;
+    text-align: center;
+}
+
+.cable-name {
+    font-size: 14px;
 }
