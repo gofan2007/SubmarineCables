@@ -45,6 +45,7 @@ var countryGDPs = {};
 var penetrationData;
 
 var toolTip;
+var toolTipOffset = -20;
 
 fetchGDPs();
 
@@ -55,15 +56,12 @@ function resetMap(){
 }
 
 svg.on("dblclick", function() {
-  if(graphToggled) {
-    toggleGraphDiv();
-    clickToggle = !clickToggle;
-  }
-  else
-  {
-    resetMap();
-  }
-})
+    if(graphToggled) {
+      toggleGraphDiv();
+      resetMap();
+      clickToggle = !clickToggle;
+    }
+  });
 
 function fetchGDPs() {
   d3.json("data/gdps.json", function(error, data) {
@@ -100,7 +98,7 @@ function calcOpacity(d){
     var earliestGDP = findEarliestGDP(desiredCountry);
     var latestGDP = findLatestGDP(desiredCountry);
     var percentChange = (latestGDP - earliestGDP) / earliestGDP;
-    console.log(d.properties.name + " " + percentChange / numCables.length);
+    //console.log(d.properties.name + " " + percentChange / numCables.length);
     return opacityScale(percentChange / numCables.length);
   } else {
     return 0;
@@ -183,14 +181,17 @@ function worldMapClicked(c, isSingleClick) {
   }
 };
 
+var introHeight = d3.select("#intro")[0][0].clientHeight;
+var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+
 function generateWorldMap() {
   d3.json("data/world-topo-min.json", function(error2, world) {
       if (error2) { return console.log(error2); }
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
       svg.style("background", mapOceanColor);
-      var introHeight = d3.select("#intro")[0][0].clientHeight;
-      var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+      // var introHeight = d3.select("#intro")[0][0].clientHeight;
+      // var headerHeight = d3.select("#header-div")[0][0].clientHeight;
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
@@ -203,24 +204,23 @@ function generateWorldMap() {
         })
         .attr("id", function(d){return "country" + d.id;})
         .on("click", function(d){ worldMapClicked(d, clickToggle) })
-        //.on("dblclick", function(d){ worldMapClicked(d, false) })
         .on("mouseover", function(d) {
-
             d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
             var coordinates = d3.mouse(svg[0][0]);
             toolTip = setTimeout(function () {
-              d3.select("#popup").style("display","block").text(d.properties.name);
+              var popup = d3.select("#popup");
+              popup.append("text").text(d.properties.name);
+              popup.style("display", "block");
               var introHeight = d3.select("#intro")[0][0].clientHeight;
               var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-              d3.select("#popup").style("display", "block");
             }, 500);
         })
         .on("mousemove",function(d){
           var coordinates = d3.mouse(svg[0][0]);
-          d3.select("#popup").style("left", coordinates[0] + 15)
-                             .style("top", introHeight + headerHeight + coordinates[1] + 15);
+          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
+                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
         })
 
         .on("mouseout", function(d) {
@@ -230,7 +230,9 @@ function generateWorldMap() {
             .style("fill-opacity", function(d){
               return calcOpacity(d);
             });
-            d3.select("#popup").style("display","none");
+            var popup = d3.select("#popup");
+            popup.selectAll("*").remove();
+            d3.select("#popup").style("display", "none");
 
         });
       g.selectAll("map2")
@@ -243,7 +245,6 @@ function generateWorldMap() {
         .style("fill-opacity", function(d){ return calcOpacity(d) })
         .attr("id", function(d){ return "country"+d.id; })
         .on("click", function(d){ worldMapClicked(d, clickToggle); })
-        //.on("dblclick", function(d){ worldMapClicked(d,false); })
         .on("mouseover", function(d) {
             d3.select("#country" + d.id).style("fill", mapHoverColor);
         })
@@ -384,7 +385,7 @@ function fetchLandingPoints() {
         g.append("polyline")
         .attr("style","fill:none;stroke:" + color + ";stroke-width:1")
         .attr("points",paths)
-        .attr("id","cable"+cable.cable_id)
+        .attr("id","cable" + cable.cable_id)
         .on("click", function() {
           var k = coordToStringResult.min;
 
@@ -406,12 +407,12 @@ function fetchLandingPoints() {
              .attr("cy",coord2[1])
              .attr("r", 3);
           });
-          //d3.selectAll("polyline").attr("style","opacity:" + opacity + ";fill:none;stroke:" + "grey" + ";stroke-width:1");
-          d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
           if (clickToggle) {
             toggleGraphDiv();
             clickToggle = !clickToggle;
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
+            d3.selectAll("#cable" + cable.cable_id)
+              .style("stroke", "orange")
+              .style("stroke-width", 6);
           }
           else if(!clickToggle) {
             toggleGraphDiv();
@@ -424,15 +425,28 @@ function fetchLandingPoints() {
               color = "#00B24C";
               opacity = 0.7;
             }
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
+            d3.selectAll("#cable" + cable.cable_id)
+              .style("stroke", "orange")
+              .style("stroke-width", 6);
             d3.selectAll("circle").remove();
           }
           generateCableGraph(cable);
         })
         .on("mouseover", function() {
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + "orange" + ";stroke-width:6");
+          d3.selectAll("#cable" + cable.cable_id)
+            .style("stroke", "orange")
+            .style("stroke-width", 6);
+          var coordinates = d3.mouse(svg[0][0]);
+          toolTip = setTimeout(function () {
+            var popup = d3.select("#popup");
+            popup.append("text").text(cable.name);
+            popup.style("display", "block");
+            var introHeight = d3.select("#intro")[0][0].clientHeight;
+            var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+          }, 500);
         })
         .on("mouseout", function() {
+          clearInterval(toolTip);
           if (cable.year < 2010) {
             color = "orange";
             opacity = 0.8;
@@ -440,11 +454,20 @@ function fetchLandingPoints() {
             color = "#00B24C";
             opacity = 0.7;
           }
-            d3.selectAll("#cable" + cable.cable_id).style("stroke-width", "1");
-            d3.selectAll("#cable" + cable.cable_id).attr("style","fill:none;stroke:" + color + ";stroke-width:1");
+          d3.selectAll("#cable" + cable.cable_id)
+            .style("stroke", color)
+            .style("stroke-width", "1");
+          var popup = d3.select("#popup");
+          popup.selectAll("*").remove();
+          d3.select("#popup").style("display","none");
+        })
+        .on("mousemove", function() {
+          var coordinates = d3.mouse(svg[0][0]);
+          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
+                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
         });
       });
-        var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+      var coordToStringResult2 = coordToString(cable.coordinates, projection2);
     });
     generateWorldMap();
   });

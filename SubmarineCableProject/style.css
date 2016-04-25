@@ -173,3 +173,8 @@ div#paragraph {
     vertical-align: middle;
     display: table-cell;
 }
+
+#cable {
+    fill: none;
+    
+}

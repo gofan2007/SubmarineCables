@@ -37,7 +37,8 @@ function generateCountryGraph(countryName) {
   var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
   var yScale = d3.scale.linear().domain([0, maxValue]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
-    .orient("bottom");
+    .orient("bottom")
+    .tickFormat(d3.format("d"));
   var yAxis = d3.svg.axis().scale(yScale)
     .orient("left");
   graphSVG.append("g").attr("class", "axis")
