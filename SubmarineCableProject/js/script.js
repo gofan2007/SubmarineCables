@@ -1,6 +1,20 @@
 //Global Variables
 var width = window.innerWidth;
 var height = window.innerHeight;
+
+var svg = d3.select("#worldSVG")
+  .attr("width",  width * 2)
+  .attr("height", height)
+  .attr("id", "worldmap");
+
+var transparentOverlay = d3.select("#transparentOverlay")
+  .on("click", function() {
+    if (graphToggled) {
+      toggleGraphDiv();
+    }
+    resetMap();
+  });
+
 var projection = d3.geo.mercator()
   .translate([width / 2, (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI);
@@ -17,11 +31,6 @@ var mapOceanColor = "white";
 var mapHoverColor = "orange";
 var graphBackgroundColor = "#b3b3b3";
 
-var svg = d3.select("#worldSVG")
-  .attr("width",  width * 2)
-  .attr("height", height)
-  .attr("id", "worldmap");
-
 var g = d3.select("#group");
 var graphDiv = d3.select("#graph-div");
 graphDiv.style("height", height)
@@ -31,8 +40,6 @@ graphDiv.style("height", height)
   .style("opacity", 0.95)
   .style("position", "absolute")
   .style("left", width / 2);
-
-var clickToggle = true;
 
 var globalCables;
 var globalLandings;
@@ -54,15 +61,8 @@ function resetMap(){
     d3.selectAll(".map1").style("fill", mapColor);
     d3.selectAll("circle").remove();
     d3.selectAll("polyline").style("stroke-width", 1);
+    selectedCableClass = "";
 }
-
-svg.on("dblclick", function() {
-    if(graphToggled) {
-      toggleGraphDiv();
-      resetMap();
-      clickToggle = !clickToggle;
-    }
-  });
 
 function fetchGDPs() {
   d3.json("data/gdps.json", function(error, data) {
@@ -138,47 +138,37 @@ function worldMapClicked(c, isSingleClick) {
   if (!graphToggled) {
     toggleGraphDiv();
   }
-  clickToggle = !clickToggle;
-  if (clickToggle) {
-    toggleGraphDiv();
-  }
-  if (isSingleClick) {
-    //Position calculations
-    var centroid = path.centroid(c),
-      [x, y] = centroid,
-      [[left, top], [right, bottom]] = path.bounds(c),
-      cHeight = bottom - top,
-      cWidth = right - left,
-      k = 1;
-    if (cHeight > cWidth){
-      k = (height / cHeight) / 1.6;
-    } else {
-      k = width / 2 / cWidth / 2.3;
-    }
+  var centroid = path.centroid(c),
+    [x, y] = centroid,
+    [[left, top], [right, bottom]] = path.bounds(c),
+    cHeight = bottom - top,
+    cWidth = right - left,
+    k = 1;
 
-    if (k < 0.5) {
-      k = 1;
-    } else if (k < 1.5) {
-      k = 1.8;
-    } else {
-      k = k;
-    }
-
-    if (c.properties.name == "France") {
-      k = 7;
-    } else if (c.properties.name == "United States") {
-      k = 1.5;
-    }
-
-    //d3.selectAll("path").style("fill", mapColor);
-    var countryPath = d3.selectAll("#country" + c.id)[0][0];
-    // countryPath.style.fill = mapColor;
-    g.transition().duration(800)
-     .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
-    generateCountryGraph(c.properties.name);
+  if (cHeight > cWidth){
+    k = (height / cHeight) / 1.6;
   } else {
-    resetMap();
+    k = width / 2 / cWidth / 2.3;
   }
+
+  if (k < 0.5) {
+    k = 1;
+  } else if (k < 1.5) {
+    k = 1.8;
+  } else {
+    k = k;
+  }
+
+  if (c.properties.name == "France") {
+    k = 7;
+  } else if (c.properties.name == "United States") {
+    k = 1.5;
+  }
+
+  var countryPath = d3.selectAll("#country" + c.id)[0][0];
+  g.transition().duration(800)
+   .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
+  generateCountryGraph(c.properties.name);
 };
 
 var introHeight = d3.select("#intro")[0][0].clientHeight;
@@ -203,7 +193,7 @@ function generateWorldMap() {
           return calcOpacity(d);
         })
         .attr("id", function(d){return "country" + d.id;})
-        .on("click", function(d){ worldMapClicked(d, clickToggle) })
+        .on("click", function(d){ worldMapClicked(d) })
         .on("mouseover", function(d) {
             d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
@@ -222,7 +212,6 @@ function generateWorldMap() {
           d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
                              .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
         })
-
         .on("mouseout", function(d) {
             clearInterval(toolTip);
             d3.select("#country" + d.id)
@@ -244,7 +233,7 @@ function generateWorldMap() {
         .style("stroke", "#888")
         .style("fill-opacity", function(d){ return calcOpacity(d) })
         .attr("id", function(d){ return "country"+d.id; })
-        .on("click", function(d){ worldMapClicked(d, clickToggle); })
+        .on("click", function(d){ worldMapClicked(d); })
         .on("mouseover", function(d) {
             d3.select("#country" + d.id).style("fill", mapHoverColor);
         })
@@ -339,6 +328,8 @@ function fetchCableData() {
   });
 }
 
+var selectedCableClass = "";
+
 function fetchLandingPoints() {
   d3.json("data/landing_points.json", function(error, landingPoints) {
     if (error) { return console.log(error); }
@@ -407,34 +398,20 @@ function fetchLandingPoints() {
              .attr("cy",coord2[1])
              .attr("r", 3);
           });
-          if (clickToggle) {
+          if (!graphToggled) {
             toggleGraphDiv();
-            clickToggle = !clickToggle;
-            d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", 6);
           }
-          else if(!clickToggle) {
-            toggleGraphDiv();
-            resetMap();
-            clickToggle = !clickToggle;
-            if (cable.year < 2010) {
-              color = "orange";
-              opacity = 0.8;
-            } else {
-              color = "#00B24C";
-              opacity = 0.7;
-            }
-            d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", 6);
-            d3.selectAll("circle").remove();
+          if (selectedCableClass != "") {
+            d3.selectAll(selectedCableClass).style("stroke-width", 1);
           }
+          selectedCableClass = "#cable" + cable.cable_id;
+          d3.selectAll(selectedCableClass)
+            .style("stroke-width", 6);
           generateCableGraph(cable);
         })
         .on("mouseover", function() {
-          if (clickToggle) {
-            d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", 6);
-          }
+          d3.selectAll("#cable" + cable.cable_id)
+            .style("stroke-width", 6);
           var coordinates = d3.mouse(svg[0][0]);
           toolTip = setTimeout(function () {
             var popup = d3.select("#popup");
@@ -446,7 +423,8 @@ function fetchLandingPoints() {
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
-          if (clickToggle) {
+          var cableClass = "#cable" + cable.cable_id;
+          if (cableClass != selectedCableClass) {
             d3.selectAll("#cable" + cable.cable_id)
               .style("stroke-width", "1");
           }
