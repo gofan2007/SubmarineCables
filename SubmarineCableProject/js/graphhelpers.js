@@ -1,5 +1,20 @@
 var hoverWidth = 10;
 
+function addCloseButton(graphSVG) {
+  // <image xlink:href="images/xbutton.png" x="0" y="0" height="50px" width="50px"></image>
+  graphSVG.append("image")
+    .attr("xlink:href", "images/xbutton.png")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("height", 25)
+    .attr("width", 25)
+    .attr("id", "close-button")
+    .on("click", function() {
+      toggleGraphDiv();
+      resetMap();
+    });
+}
+
 function generateCountryGraph(countryName) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
@@ -15,6 +30,8 @@ function generateCountryGraph(countryName) {
     .style("font-size", 20);
     return;
   }
+
+  addCloseButton(graphSVG);
 
   var nextKey = "1989 [YR1989]";
   var key;
@@ -156,6 +173,7 @@ function generateCountryGraph(countryName) {
 function generateCableGraph(cable) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
+  addCloseButton(graphSVG);
   var desiredLandings = cableIDToLandings[cable.cable_id];
   var maxGDP = 0;
   if (desiredLandings.length == 0) {

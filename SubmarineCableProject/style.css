@@ -188,3 +188,11 @@ div#paragraph {
 .cable-name {
     font-size: 14px;
 }
+
+#close-button {
+    transition: transform 0.1s;
+}
+
+#close-button:hover {
+    transform: scale(1.1, 1.1);
+}
