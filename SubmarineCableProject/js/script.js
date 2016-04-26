@@ -53,6 +53,7 @@ var penetrationData;
 
 var toolTip;
 var toolTipOffset = -20;
+var selectedCableClass = "";
 
 fetchGDPs();
 
@@ -198,19 +199,10 @@ function generateWorldMap() {
             d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
-            var coordinates = d3.mouse(svg[0][0]);
-            toolTip = setTimeout(function () {
-              var popup = d3.select("#popup");
-              popup.append("text").text(d.properties.name);
-              popup.style("display", "block");
-              var introHeight = d3.select("#intro")[0][0].clientHeight;
-              var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-            }, 500);
+            showPopupWithLatency(d.properties.name);
         })
         .on("mousemove",function(d){
-          var coordinates = d3.mouse(svg[0][0]);
-          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
-                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+          trackMouseMovements();
         })
         .on("mouseout", function(d) {
             clearInterval(toolTip);
@@ -317,7 +309,6 @@ function coordToString(coordinates,projection) {
   if (cableHeight < cableWidth){
     min = cableHeight;
   }
-
   return {"coords": result, "height": cableHeight, "width": cableWidth, "min": min, "center": center};
 }
 
@@ -327,8 +318,6 @@ function fetchCableData() {
     fetchLandingPoints();
   });
 }
-
-var selectedCableClass = "";
 
 function fetchLandingPoints() {
   d3.json("data/landing_points.json", function(error, landingPoints) {
@@ -379,12 +368,10 @@ function fetchLandingPoints() {
         .attr("id","cable" + cable.cable_id)
         .on("click", function() {
           var k = coordToStringResult.min;
-
           var[x,y] = coordToStringResult.center;
           g.transition().duration(800)
           .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
           var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
-
           d3.selectAll("circle").remove();
           cableLandingPoints.forEach(function(d){
             var coord1 = projection(d.coordinates);
@@ -412,14 +399,7 @@ function fetchLandingPoints() {
         .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id)
             .style("stroke-width", 6);
-          var coordinates = d3.mouse(svg[0][0]);
-          toolTip = setTimeout(function () {
-            var popup = d3.select("#popup");
-            popup.append("text").text(cable.name);
-            popup.style("display", "block");
-            var introHeight = d3.select("#intro")[0][0].clientHeight;
-            var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-          }, 500);
+          showPopupWithLatency(cable.name);
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
@@ -433,9 +413,7 @@ function fetchLandingPoints() {
           d3.select("#popup").style("display","none");
         })
         .on("mousemove", function() {
-          var coordinates = d3.mouse(svg[0][0]);
-          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
-                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+          trackMouseMovements();
         });
       });
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
@@ -447,4 +425,21 @@ function fetchLandingPoints() {
 function toggleGraphDiv() {
   $("#graph-div").slideToggle(500);
   graphToggled = !graphToggled;
+}
+
+function trackMouseMovements() {
+  var coordinates = d3.mouse(svg[0][0]);
+  d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
+    .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+}
+
+function showPopupWithLatency(text) {
+  var coordinates = d3.mouse(svg[0][0]);
+  toolTip = setTimeout(function () {
+    var popup = d3.select("#popup");
+    popup.append("text").text(text);
+    popup.style("display", "block");
+    var introHeight = d3.select("#intro")[0][0].clientHeight;
+    var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+  }, 500);
 }

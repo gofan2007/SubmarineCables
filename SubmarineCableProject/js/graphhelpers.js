@@ -1,9 +1,10 @@
+var hoverWidth = 10;
+
 function generateCountryGraph(countryName) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
   var desiredCountry = countryGDPs[countryName];
   if (desiredCountry ==  null) {
-    console.log("caught error");
     graphSVG.append("text")
     .text("Data N/A")
     .attr("x", "50%")
@@ -100,6 +101,9 @@ function generateCountryGraph(countryName) {
         .style("stroke-width", yearToNumberOfCables[key] * 2)
         .style("stroke-opacity", 0.5)
         .on("mouseover", function() {
+          var thisLine = d3.select(this);
+          console.log(parseInt(thisLine.style("stroke-width")) + hoverWidth);
+          thisLine.style("stroke-width", parseInt(thisLine.style("stroke-width")) + hoverWidth);
           var popup = d3.select("#popup");
           popup.style("display", "block")
           console.log(key);
@@ -108,15 +112,14 @@ function generateCountryGraph(countryName) {
           })
         })
         .on("mousemove", function() {
-          var coordinates = d3.mouse(svg[0][0]);
-          d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
-                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+          trackMouseMovements();
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
+          d3.select(this).style("stroke-width", yearToNumberOfCables[key] * 2);
           var popup = d3.select("#popup");
           popup.selectAll("*").remove();
-          d3.select("#popup").style("display","none");
+          d3.select("#popup").style("display", "none");
         });
     });
   }
@@ -154,6 +157,7 @@ function generateCableGraph(cable) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
   var desiredLandings = cableIDToLandings[cable.cable_id];
+  var maxGDP = 0;
   if (desiredLandings.length == 0) {
     graphSVG.append("text")
     .text("Data N/A")
@@ -164,12 +168,28 @@ function generateCableGraph(cable) {
     .style("alignment-baseline", "center")
     .style("font-size", 20);
     return;
+  } else {
+    //find maximum GDP value to generate scale
+
+    desiredLandings.forEach(function(landing) {
+      var desiredCountry = countryGDPs[landing.country];
+      var nextKey = "1989 [YR1989]";
+      var key;
+       for (var i = 1989; i < 2015; i++) {
+        var nextDateString = (i + 1).toString();
+        key = nextKey;
+        nextKey = nextDateString + " [YR" + nextDateString + "]";
+        if (desiredCountry != null && desiredCountry[key] != ".." && desiredCountry[key] > maxGDP) {
+          maxGDP = desiredCountry[key];
+        }
+      }
+    });
   }
 
   var xPadding = 100;
   var yPadding = 100;
   var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
-  var yScale = d3.scale.linear().domain([0, 100000]).range([height - yPadding, yPadding]);
+  var yScale = d3.scale.linear().domain([0, maxGDP]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom");
   var yAxis = d3.svg.axis().scale(yScale)
@@ -208,19 +228,20 @@ function generateCableGraph(cable) {
               .style("stroke-width", 3)
               .attr("class", desiredCountry["Country Code"])
               .on("mouseover", function() {
-                d3.selectAll("." + desiredCountry["Country Code"]).style("stroke", "orange");
+                d3.selectAll("." + desiredCountry["Country Code"])
+                  .style("stroke-width", 7);
                 var popup = d3.select("#popup");
                 popup.style("display", "block")
                   .append("p").text(desiredCountry["Country Name"]);
               })
               .on("mousemove", function() {
-                var coordinates = d3.mouse(svg[0][0]);
-                d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
-                             .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+                trackMouseMovements();
               })
               .on("mouseout", function() {
                 clearInterval(toolTip);
-                d3.selectAll("." + desiredCountry["Country Code"]).style("stroke", "black");
+                d3.selectAll("." + desiredCountry["Country Code"])
+                  .style("stroke", "black")
+                  .style("stroke-width", 3);
                 var popup = d3.select("#popup");
                 popup.selectAll("*").remove();
                 d3.select("#popup").style("display","none");
