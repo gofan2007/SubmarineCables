@@ -313,7 +313,7 @@ function coordToString(coordinates,projection) {
 }
 
 function fetchCableData() {
-  d3.json("data/cable_data.json", function(error, cables) {
+  d3.json("data/cable_data_final.json", function(error, cables) {
     globalCables = cables;
     fetchLandingPoints();
   });
@@ -369,7 +369,10 @@ function fetchLandingPoints() {
         .on("click", function() {
           var k = coordToStringResult.min;
           var[x,y] = coordToStringResult.center;
+          //try to hard code to make this cable show ACE
+          if(cable.cable_id ==1629){y=y*0.85;k=k/1.8}
           g.transition().duration(800)
+
           .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
           var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
           d3.selectAll("circle").remove();
