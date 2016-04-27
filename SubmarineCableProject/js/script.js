@@ -108,8 +108,8 @@ function calcOpacity(d){
 }
 
 function calcCableColor(c){
-  var colorScale = d3.scale.linear().domain([0, 1]).range(["hsl(85,41%,60%)","hsl(0,100%,52%)"]);
-  return colorScale(c.cost/4000000000);
+  var colorScale = d3.scale.log().domain([1, 2]).range(["#feb24c","#f03b20"]);
+  return colorScale(c.cost/4000000000 + 1);
 }
 
 function findEarliestGDP(country) {

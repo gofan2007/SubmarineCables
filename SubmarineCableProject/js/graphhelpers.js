@@ -303,6 +303,15 @@ function generateCableGraph(cable) {
     .style("font-size", 30)
     .style("font-weight", 100);
   graphSVG.append("text")
+    .text("Cost: $" + cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+    .attr("x", "50%")
+    .attr("y", "11%")
+    .style("fill", "black")
+    .style("text-anchor", "middle")
+    .style("alignment-baseline", "center")
+    .style("font-size", 20)
+    .style("font-weight", 150);
+  graphSVG.append("text")
     .text("GDP per capita (thousands of $)")
     .attr("x", "-50%")
     .attr("y", xScale(1989) - 80)
