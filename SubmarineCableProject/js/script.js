@@ -1,27 +1,46 @@
 //Global Variables
 var width = window.innerWidth;
 var height = window.innerHeight;
-
+var zoom = 1;
 var svg = d3.select("#worldSVG")
-  .attr("width",  width * 2)
+  .attr("width",  width * 1.5)
   .attr("height", height)
   .attr("id", "worldmap");
 
 var transparentOverlay = d3.select("#transparentOverlay")
   .on("click", function() {
-    if (graphToggled) {
-      toggleGraphDiv();
-    }
-    resetMap();
+    var that = this;
+    setTimeout(function() {
+      var dblclick = parseInt($(that).data('double'), 10);
+      if (dblclick > 0) {
+          $(that).data('double', dblclick-1);
+      } else {
+        if (graphToggled) {
+          toggleGraphDiv();
+        }
+        resetMap();
+      }
+    }, 250);
+  })
+  .on("dblclick", function() {
+    $(this).data('double', 2);
+    var coordinates = d3.mouse(svg[0][0]);
+    zoom *= 2;
+    g.transition().duration(800)
+   .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + zoom + ")translate(" + -coordinates[0]/zoom + "," + -coordinates[1]/zoom + ")");
   });
 
 var projection = d3.geo.mercator()
   .translate([width / 2, (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI);
 var projection2 = d3.geo.mercator()
-  .translate([(width *1.5) , (3 * height) / 4.5])
+  .translate([(width * 1.5) , (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
+var projection3 = d3.geo.mercator()
+  .translate([(-width / 2 ), (3 * height) / 4.5])
+  .scale((width ) / 2 / Math.PI);
 
+var path3 = d3.geo.path().projection(projection3);
 var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
@@ -30,7 +49,6 @@ var mapColor = "#7FB800";
 var mapOceanColor = "white";
 var mapHoverColor = "#737373";
 var graphBackgroundColor = "#b3b3b3";
-
 var g = d3.select("#group");
 var graphDiv = d3.select("#graph-div");
 graphDiv.style("height", height)
@@ -58,11 +76,13 @@ var selectedCableClass = "";
 fetchGDPs();
 
 function resetMap(){
+  console.log("resetting");
     g.transition().duration(500).attr("transform", "translate(" + 0 + "," + 0 + ")");
     d3.selectAll(".map1").style("fill", mapColor);
     d3.selectAll("circle").remove();
     d3.selectAll("polyline").style("stroke-width", 1);
     selectedCableClass = "";
+    zoom = 1;
 }
 
 function fetchGDPs() {
@@ -253,6 +273,22 @@ function generateWorldMap() {
         .on("mouseout", function(d) {
             d3.select("#country" + d.id).style("fill", mapColor);
         });
+      g.selectAll("map3")
+        .data(countries)
+        .enter().append("path")
+        .attr("d", path3)
+        .attr("class","map3")
+        .style("fill", mapColor)
+        .style("stroke", "#888")
+        .style("fill-opacity", function(d){ return calcOpacity(d) })
+        .attr("id", function(d){ return "country"+d.id; })
+        .on("click", function(d){ worldMapClicked(d); })
+        .on("mouseover", function(d) {
+            d3.select("#country" + d.id).style("fill", mapHoverColor);
+        })
+        .on("mouseout", function(d) {
+            d3.select("#country" + d.id).style("fill", mapColor);
+        });
   });
 };
 
@@ -382,10 +418,11 @@ function fetchLandingPoints() {
       // }
 
       color = calcCableColor(cable);
-      var coordToStringResult = coordToString(cable.coordinates,projection);
-      var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+      var coordToStringResult = coordToString(cable.coordinates, projection);
+      var coordToStringResult2 = coordToString(cable.coordinates, projection2);
+      var coordToStringResult3 = coordToString(cable.coordinates, projection3);
       var k = coordToStringResult.min;
-      (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
+      (coordToStringResult.coords).concat(coordToStringResult2.coords).concat(coordToStringResult3.coords).forEach(function(paths) {
         g.append("polyline")
         .attr("style","fill:none;stroke:" + color + ";stroke-width:1; stroke-opacity:0.8")
         .attr("points",paths)
@@ -407,7 +444,7 @@ function fetchLandingPoints() {
              .attr("cx",coord1[0])
              .attr("cy",coord1[1])
              .attr("r", 3)
-             .on("mouseover",function(){showPopupWithLatency(d.name)})
+             .on("mouseover",function(){ showPopupWithLatency(d.name) })
              .on("mouseout",function(){
               popup.selectAll("*").remove();
               d3.select("#popup").style("display","none");
@@ -416,10 +453,12 @@ function fetchLandingPoints() {
              .attr("cx",coord2[0])
              .attr("cy",coord2[1])
              .attr("r", 3)
-             .on("mouseover",function(){showPopupWithLatency(d.name)})
-             .on("mouseout",function(){
-              popup.selectAll("*").remove();
-              d3.select("#popup").style("display","none");
+             .on("mouseover",function() {
+                showPopupWithLatency(d.name);
+              })
+             .on("mouseout",function() {
+                popup.selectAll("*").remove();
+                d3.select("#popup").style("display","none");
              });
           });
           if (!graphToggled) {
@@ -458,6 +497,7 @@ function fetchLandingPoints() {
         });
       });
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
+      var coordToStringResult3 = coordToString(cable.coordinates, projection3);
     });
     fetchHDI();
   });
