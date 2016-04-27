@@ -85,7 +85,7 @@ div#header-div {
     background-position: bottom left;
     background-repeat: no-repeat;
     background-size: cover;
-    text-align: center;
+    text-align: right;
     vertical-align: middle;
     display: table;
 }
@@ -173,7 +173,7 @@ div#paragraph {
 #title {
     color: #f2f2f2;
     font-weight: 100;
-    vertical-align: middle;
+    vertical-align: bottom;
     display: table-cell;
 }
 
