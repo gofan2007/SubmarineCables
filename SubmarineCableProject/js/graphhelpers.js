@@ -1,7 +1,6 @@
 var hoverWidth = 10;
 
 function addCloseButton(graphSVG) {
-  // <image xlink:href="images/xbutton.png" x="0" y="0" height="50px" width="50px"></image>
   graphSVG.append("image")
     .attr("xlink:href", "images/xbutton.png")
     .attr("x", 0)
@@ -106,9 +105,7 @@ function generateCountryGraph(countryName) {
         }
       }
     });
-    console.log(yearToCableNames);
     Object.keys(yearToNumberOfCables).forEach(function(key) {
-      console.log(key);
       graphSVG.append("line")
         .attr("x1", xScale(key))
         .attr("x2", xScale(key))
@@ -151,7 +148,7 @@ function generateCountryGraph(countryName) {
     .style("font-size", 30)
     .style("font-weight", 100);
   graphSVG.append("text")
-    .text("GDP per capita (thousands of $)")
+    .text("GDP per capita in US dollars")
     .attr("x", "-50%")
     .attr("y", xScale(1989) - 80)
     .style("fill", "black")
@@ -243,11 +240,11 @@ function generateCableGraph(cable) {
               .attr("x2", xScale(i + 1))
               .attr("y2", yScale(desiredCountry[nextKey]))
               .style("stroke", "black")
-              .style("stroke-width", 3)
+              .style("stroke-width", 1)
               .attr("class", desiredCountry["Country Code"])
               .on("mouseover", function() {
                 d3.selectAll("." + desiredCountry["Country Code"])
-                  .style("stroke-width", 7);
+                  .style("stroke-width", 5);
                 var popup = d3.select("#popup");
                 popup.style("display", "block")
                   .append("p").text(desiredCountry["Country Name"]);
@@ -259,7 +256,7 @@ function generateCableGraph(cable) {
                 clearInterval(toolTip);
                 d3.selectAll("." + desiredCountry["Country Code"])
                   .style("stroke", "black")
-                  .style("stroke-width", 3);
+                  .style("stroke-width", 1);
                 var popup = d3.select("#popup");
                 popup.selectAll("*").remove();
                 d3.select("#popup").style("display","none");
