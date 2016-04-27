@@ -50,7 +50,7 @@ function generateCountryGraph(countryName) {
 
   var xPadding = 100;
   var yPadding = 100;
-  var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
+  var xScale = d3.scale.linear().domain([1989, 2020]).range([xPadding, width / 2 - xPadding]);
   var yScale = d3.scale.linear().domain([0, maxValue]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom")
@@ -94,7 +94,7 @@ function generateCountryGraph(countryName) {
       //console.log(cableIDtoCable[cableID].name);
       var year = cableIDtoCable[cableID].year;
       var name = cableIDtoCable[cableID].name;
-      if (year != 0 && year <= 2014) {
+      if (year != 0) {
         if (yearToNumberOfCables[year] == null) {
           yearToNumberOfCables[year] = 1;
           yearToCableNames[year] = [name];
@@ -206,7 +206,7 @@ function generateCableGraph(cable) {
 
   var xPadding = 100;
   var yPadding = 100;
-  var xScale = d3.scale.linear().domain([1989, 2014]).range([xPadding, width / 2 - xPadding]);
+  var xScale = d3.scale.linear().domain([1989, 2020]).range([xPadding, width / 2 - xPadding]);
   var yScale = d3.scale.linear().domain([0, maxGDP]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
     .orient("bottom");
@@ -271,7 +271,7 @@ function generateCableGraph(cable) {
   });
 
   var year = cable.year;
-  if (year != 0 && year <= 2014) {
+  if (year != 0) {
     graphSVG.append("line")
       .attr("x1", xScale(year))
       .attr("x2", xScale(year))

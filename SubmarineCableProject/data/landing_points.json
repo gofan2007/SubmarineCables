@@ -4274,7 +4274,7 @@
   {
     "id": "danang-vietnam",
     "city_id": 5986,
-    "name": "Danang, Vietnam",
+    "name": "Danang, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>108.214774,16.051564</coordinates></Point>",
     "cable_id": 1617
@@ -4282,7 +4282,7 @@
   {
     "id": "danang-vietnam",
     "city_id": 5986,
-    "name": "Danang, Vietnam",
+    "name": "Danang, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>108.214774,16.051564</coordinates></Point>",
     "cable_id": 1031
@@ -9082,7 +9082,7 @@
   {
     "id": "vung-tau-vietnam",
     "city_id": 6013,
-    "name": "Vung Tau, Vietnam",
+    "name": "Vung Tau, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>107.079228,10.341899</coordinates></Point>",
     "cable_id": 1739
@@ -9090,7 +9090,7 @@
   {
     "id": "vung-tau-vietnam",
     "city_id": 6013,
-    "name": "Vung Tau, Vietnam",
+    "name": "Vung Tau, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>107.079228,10.341899</coordinates></Point>",
     "cable_id": 1507
@@ -9122,7 +9122,7 @@
   {
     "id": "vung-tau-vietnam",
     "city_id": 6013,
-    "name": "Vung Tau, Vietnam",
+    "name": "Vung Tau, Viet Nam",
     "marker": "measle_white",
     "coordinates": "<Point><coordinates>107.079228,10.341899</coordinates></Point>",
     "cable_id": 1534

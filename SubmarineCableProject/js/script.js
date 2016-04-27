@@ -46,7 +46,7 @@ var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
 var cableIDToLandings = {};
-var opacityScale = d3.scale.linear().domain([0, 2]).range([0.3, 1]);
+var opacityScale = d3.scale.linear().domain([0, 1]).range([0.1, 1]);
 var countryGDPs = {};
 
 var penetrationData;
@@ -87,24 +87,24 @@ function fetchInternetPenData() {
 }
 
 function calcOpacity(d){
-  // var internet_user_data = penetrationData.find(function(data) {
-  //   return data.Country == d.properties.name;
-  // });
-  // if (internet_user_data == null) {
-  //   internet_user_data = { "Internet" : 0};
-  // }
-  // return opacityScale(internet_user_data.Internet);
-  var desiredCountry = countryGDPs[d.properties.name];
-  var numCables = countryToCableID[d.properties.name];
-  if (desiredCountry != null && numCables != null && numCables.length != 0) {
-    var earliestGDP = findEarliestGDP(desiredCountry);
-    var latestGDP = findLatestGDP(desiredCountry);
-    var percentChange = (latestGDP - earliestGDP) / earliestGDP;
-    //console.log(d.properties.name + " " + percentChange / numCables.length);
-    return opacityScale(percentChange / numCables.length);
-  } else {
-    return 0;
+  var internet_user_data = penetrationData.find(function(data) {
+    return data.Country == d.properties.name;
+  });
+  if (internet_user_data == null) {
+    internet_user_data = { "Internet" : 0};
   }
+  return opacityScale(internet_user_data.Internet);
+  // var desiredCountry = countryGDPs[d.properties.name];
+  // var numCables = countryToCableID[d.properties.name];
+  // if (desiredCountry != null && numCables != null && numCables.length != 0) {
+  //   var earliestGDP = findEarliestGDP(desiredCountry);
+  //   var latestGDP = findLatestGDP(desiredCountry);
+  //   var percentChange = (latestGDP - earliestGDP) / earliestGDP;
+  //   //console.log(d.properties.name + " " + percentChange / numCables.length);
+  //   return opacityScale(percentChange / numCables.length);
+  // } else {
+  //   return 0;
+  // }
 }
 
 function findEarliestGDP(country) {
@@ -421,7 +421,7 @@ function fetchLandingPoints() {
       });
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
     });
-    generateWorldMap();
+    fetchInternetPenData();
   });
 }
 
