@@ -26,8 +26,8 @@ var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
 var graphToggled = false;
-var mapColor = "#5abfa8";
-var mapOceanColor = "#e6e6e6";
+var mapColor = "#990073";
+var mapOceanColor = "white";
 var mapHoverColor = "orange";
 var graphBackgroundColor = "#b3b3b3";
 
@@ -46,10 +46,10 @@ var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
 var cableIDToLandings = {};
-var opacityScale = d3.scale.linear().domain([0, 1]).range([0.1, 1]);
+var opacityScale = d3.scale.linear().domain([0.35, 1]).range([0, 1]);
 var countryGDPs = {};
 
-var penetrationData;
+var hdiData;
 
 var toolTip;
 var toolTipOffset = -20;
@@ -75,25 +75,29 @@ function fetchGDPs() {
   });
 }
 
-function fetchInternetPenData() {
-  d3.json("data/internet-users.json", function(error1, userData) {
+function fetchHDI() {
+  d3.json("data/hdi.json", function(error1, userData) {
     if (error1) {
       return console.log(error1);
     } else {
-      penetrationData = userData;
+      hdiData = userData;
       generateWorldMap();
     }
   });
 }
 
 function calcOpacity(d){
-  var internet_user_data = penetrationData.find(function(data) {
-    return data.Country == d.properties.name;
+  var countryQOL = hdiData.find(function(data) {
+    return data.Location == d.properties.name;
   });
-  if (internet_user_data == null) {
-    internet_user_data = { "Internet" : 0};
+  var devIndex;
+  if (countryQOL == null) {
+    devIndex = 0;
+  } else {
+    devIndex = countryQOL["Human Development Index (HDI)"];
   }
-  return opacityScale(internet_user_data.Internet);
+  console.log(devIndex);
+  return opacityScale(devIndex);
   // var desiredCountry = countryGDPs[d.properties.name];
   // var numCables = countryToCableID[d.properties.name];
   // if (desiredCountry != null && numCables != null && numCables.length != 0) {
@@ -433,7 +437,7 @@ function fetchLandingPoints() {
       });
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
     });
-    fetchInternetPenData();
+    fetchHDI();
   });
 }
 
