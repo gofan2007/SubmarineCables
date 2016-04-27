@@ -27,7 +27,7 @@ var path2 = d3.geo.path().projection(projection2);
 
 var graphToggled = false;
 var mapColor = "#5abfa8";
-var mapOceanColor = "white";
+var mapOceanColor = "#e6e6e6";
 var mapHoverColor = "orange";
 var graphBackgroundColor = "#b3b3b3";
 

@@ -18,6 +18,7 @@ function generateCountryGraph(countryName) {
   var graphSVG = d3.select("#graphSVG");
   graphSVG.selectAll("*").remove();
   var desiredCountry = countryGDPs[countryName];
+  addCloseButton(graphSVG);
   if (desiredCountry ==  null) {
     graphSVG.append("text")
     .text("Data N/A")
@@ -29,8 +30,6 @@ function generateCountryGraph(countryName) {
     .style("font-size", 20);
     return;
   }
-
-  addCloseButton(graphSVG);
 
   var nextKey = "1989 [YR1989]";
   var key;
@@ -112,25 +111,22 @@ function generateCountryGraph(countryName) {
         .attr("y1", yScale(0))
         .attr("y2", yScale(maxValue))
         .style("stroke", "purple")
-        .style("stroke-width", yearToNumberOfCables[key] * 2)
+        .style("stroke-width", 3)
         .style("stroke-opacity", 0.5)
         .on("mouseover", function() {
-          var thisLine = d3.select(this);
-          console.log(parseInt(thisLine.style("stroke-width")) + hoverWidth);
-          thisLine.style("stroke-width", parseInt(thisLine.style("stroke-width")) + hoverWidth);
           var popup = d3.select("#popup");
           popup.style("display", "block")
-          console.log(key);
           yearToCableNames[key].forEach(function(d) {
             popup.append("p").text(d).attr("class", "cable-name");
           })
+          d3.select(this).style("stroke-opacity", 1);
         })
         .on("mousemove", function() {
           trackMouseMovements();
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
-          d3.select(this).style("stroke-width", yearToNumberOfCables[key] * 2);
+          d3.select(this).style("stroke-opacity", 0.5);
           var popup = d3.select("#popup");
           popup.selectAll("*").remove();
           d3.select("#popup").style("display", "none");
@@ -232,7 +228,27 @@ function generateCableGraph(cable) {
             .attr("cx", xScale(i))
             .attr("cy", yScale(desiredCountry[key]))
             .attr("r", 3)
-            .style("fill", "black");
+            .attr("class", desiredCountry["Country Code"])
+            .style("fill", "black")
+            .on("mouseover", function() {
+                d3.selectAll("." + desiredCountry["Country Code"])
+                  .style("stroke-width", 5);
+                var popup = d3.select("#popup");
+                popup.style("display", "block")
+                  .append("p").text(desiredCountry["Country Name"]);
+              })
+              .on("mousemove", function() {
+                trackMouseMovements();
+              })
+              .on("mouseout", function() {
+                clearInterval(toolTip);
+                d3.selectAll("." + desiredCountry["Country Code"])
+                  .style("stroke", "black")
+                  .style("stroke-width", 1);
+                var popup = d3.select("#popup");
+                popup.selectAll("*").remove();
+                d3.select("#popup").style("display","none");
+              });
           if (i != 2014 && desiredCountry[nextKey] != "..") {
             graphSVG.append("line")
               .attr("x1", xScale(i))
@@ -273,7 +289,7 @@ function generateCableGraph(cable) {
       .attr("x1", xScale(year))
       .attr("x2", xScale(year))
       .attr("y1", yScale(0))
-      .attr("y2", yScale(100000))
+      .attr("y2", yScale(maxGDP))
       .style("stroke", "purple");
   }
 
