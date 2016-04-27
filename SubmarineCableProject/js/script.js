@@ -394,11 +394,21 @@ function fetchLandingPoints() {
             g.append("circle")
              .attr("cx",coord1[0])
              .attr("cy",coord1[1])
-             .attr("r", 3);
+             .attr("r", 3)
+             .on("mouseover",function(){showPopupWithLatency(d.name)})
+             .on("mouseout",function(){
+              popup.selectAll("*").remove();
+              d3.select("#popup").style("display","none");
+             });
             g.append("circle")
              .attr("cx",coord2[0])
              .attr("cy",coord2[1])
-             .attr("r", 3);
+             .attr("r", 3)
+             .on("mouseover",function(){showPopupWithLatency(d.name)})
+             .on("mouseout",function(){
+              popup.selectAll("*").remove();
+              d3.select("#popup").style("display","none");
+             });
           });
           if (!graphToggled) {
             toggleGraphDiv();
