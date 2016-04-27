@@ -108,7 +108,7 @@ function calcOpacity(d){
 }
 
 function calcCableColor(c){
-  var colorScale = d3.scale.linear().domain([0, 1]).range(["hsl(85,41%,60%)","hsl(0,100%,52%)"]);
+  var colorScale = d3.scale.linear().domain([0, 1]).range(["hsl(224,100%,50%)","hsl(0,100%,52%)"]);
   return colorScale(c.cost/4000000000);
 }
 
@@ -368,13 +368,14 @@ function fetchLandingPoints() {
       color = calcCableColor(cable);
       var coordToStringResult = coordToString(cable.coordinates,projection);
       var coordToStringResult2 = coordToString(cable.coordinates,projection2);
+      var k = coordToStringResult.min;
       (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
         g.append("polyline")
-        .attr("style","fill:none;stroke:" + color + ";stroke-width:1")
+        .attr("style","fill:none;stroke:" + color + ";stroke-width:1; stroke-opacity:0.8")
         .attr("points",paths)
         .attr("id","cable" + cable.cable_id)
         .on("click", function() {
-          var k = coordToStringResult.min;
+         // var k = coordToStringResult.min;
           var[x,y] = coordToStringResult.center;
           //try to hard code to make this cable show ACE
           if(cable.cable_id ==1629){y=y*0.85;k=k/1.8}
@@ -401,14 +402,16 @@ function fetchLandingPoints() {
           if (selectedCableClass != "") {
             d3.selectAll(selectedCableClass).style("stroke-width", 1);
           }
+          d3.selectAll("polyline").style("stroke-width",1/k);
           selectedCableClass = "#cable" + cable.cable_id;
           d3.selectAll(selectedCableClass)
-            .style("stroke-width", 6);
+            .style("stroke-width", 4/k)
+            .style("stroke-opacity",1);
           generateCableGraph(cable);
         })
         .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id)
-            .style("stroke-width", 6);
+            .style("stroke-width", 4/k);
           showPopupWithLatency(cable.name);
         })
         .on("mouseout", function() {
@@ -416,7 +419,9 @@ function fetchLandingPoints() {
           var cableClass = "#cable" + cable.cable_id;
           if (cableClass != selectedCableClass) {
             d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", "1");
+              .style("stroke-width", 1/k)
+              .style("stroke-opacity",0.8);
+
           }
           var popup = d3.select("#popup");
           popup.selectAll("*").remove();
