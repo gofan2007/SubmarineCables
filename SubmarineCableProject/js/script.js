@@ -27,7 +27,8 @@ var transparentOverlay = d3.select("#transparentOverlay")
     var coordinates = d3.mouse(svg[0][0]);
     zoom *= 2;
     g.transition().duration(800)
-   .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + zoom + ")translate(" + -coordinates[0]/zoom + "," + -coordinates[1]/zoom + ")");
+   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + zoom + 
+      ")translate(" + -(coordinates[0] + width / 2) / zoom + "," + -(coordinates[1] + height / 2) / zoom + ")");
   });
 
 var projection = d3.geo.mercator()
