@@ -26,7 +26,7 @@ var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
 var graphToggled = false;
-var mapColor = "#333399";
+var mapColor = "#7FB800";
 var mapOceanColor = "white";
 var mapHoverColor = "orange";
 var graphBackgroundColor = "#b3b3b3";
@@ -111,8 +111,21 @@ function calcOpacity(d){
 }
 
 function calcCableColor(c){
-  var colorScale = d3.scale.log().domain([1, 2]).range(["#feb24c","#f03b20"]);
-  return colorScale(c.cost/4000000000 + 1);
+  //var colorScale = d3.scale.log().domain([1, 2]).range(["#feb24c","#f03b20"]);
+  // if(c.cost/4000000000 < 0.3) {
+  //   return ("#525252");
+  // } else if(c.cost/4000000000 < 0.6) {
+  //   return("#ec7014");
+  // }
+  // else {
+  //   return("#ae017e")
+  // }
+//  return colorScale(c.cost/4000000000 + 1);
+  if(c.year < 2010) {
+    return "orange";
+  } else {
+    return "purple";
+  }
 }
 
 function findEarliestGDP(country) {
@@ -425,7 +438,7 @@ function fetchLandingPoints() {
         .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id)
             .style("stroke-width", 4/k);
-          showPopupWithLatency(cable.name, cable.cost, "Cable Cost ($)");
+          showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost ($)");
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
