@@ -107,6 +107,11 @@ function calcOpacity(d){
   // }
 }
 
+function calcCableColor(c){
+  var colorScale = d3.scale.linear().domain([0, 1]).range(["hsl(85,41%,60%)","hsl(0,100%,52%)"]);
+  return colorScale(c.cost/4000000000);
+}
+
 function findEarliestGDP(country) {
   var nextKey = "1989 [YR1989]";
   var key;
@@ -352,13 +357,15 @@ function fetchLandingPoints() {
     var color = "black";
     var opacity = 0;
     globalCables.forEach(function(cable) {
-      if (cable.year < 2010) {
-        color = "orange";
-        opacity = 0.8;
-      } else {
-        color = "#00B24C";
-        opacity = 0.7;
-      }
+      // if (cable.year < 2010) {
+      //   color = "orange";
+      //   opacity = 0.8;
+      // } else {
+      //   color = "#00B24C";
+      //   opacity = 0.7;
+      // }
+
+      color = calcCableColor(cable);
       var coordToStringResult = coordToString(cable.coordinates,projection);
       var coordToStringResult2 = coordToString(cable.coordinates,projection2);
       (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
