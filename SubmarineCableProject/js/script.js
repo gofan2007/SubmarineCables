@@ -52,7 +52,7 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
-var toolTipOffset = -20;
+var toolTipOffset = -5;
 var selectedCableClass = "";
 
 fetchGDPs();

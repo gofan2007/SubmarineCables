@@ -154,10 +154,11 @@ div#paragraph {
 }
 
 #popup {
-    padding: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
     height: auto;
     width: auto;
-    background-color: #5abfa8;
+    background-color: #f2f2f2;
     display: none; 
     position: absolute;
     pointer-events:none;
