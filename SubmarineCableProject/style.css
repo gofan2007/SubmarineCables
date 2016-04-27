@@ -171,7 +171,8 @@ div#paragraph {
 }
 
 #title {
-    color: white;
+    color: #f2f2f2;
+    font-weight: 100;
     vertical-align: middle;
     display: table-cell;
 }

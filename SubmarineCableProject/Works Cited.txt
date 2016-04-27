@@ -6,3 +6,6 @@ http://www.datacottage.com/nch/fibre.htm#.VxppRZMrKRt
 
 Internet Penetration:
 http://www.igi-global.com/dictionary/internet-penetration/15438
+
+HDI:
+https://data.hdx.rwlabs.org/dataset/human-development-index-hdi-2014/resource/ccc764d4-1e53-4370-83fa-562e860e72b5
