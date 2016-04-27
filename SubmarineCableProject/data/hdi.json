@@ -1878,5 +1878,9 @@
     "Mean years of schooling": 1.5,
     "Gross national income (GNI) per capita": 908,
     "GNI per capita rank minus HDI rank": -5
+  },
+  {
+    "Location": "Greenland",
+    "Human Development Index (HDI)": 0.803
   }
 ]

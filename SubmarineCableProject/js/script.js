@@ -26,7 +26,7 @@ var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
 var graphToggled = false;
-var mapColor = "#990073";
+var mapColor = "#333399";
 var mapOceanColor = "white";
 var mapHoverColor = "orange";
 var graphBackgroundColor = "#b3b3b3";
@@ -90,14 +90,13 @@ function calcOpacity(d){
   var countryQOL = hdiData.find(function(data) {
     return data.Location == d.properties.name;
   });
-  var devIndex;
   if (countryQOL == null) {
-    devIndex = 0;
+    d["HDI"] = 0;
   } else {
-    devIndex = countryQOL["Human Development Index (HDI)"];
+    d["HDI"] = countryQOL["Human Development Index (HDI)"];
   }
-  console.log(devIndex);
-  return opacityScale(devIndex);
+  console.log(d["HDI"]);
+  return opacityScale(d["HDI"]);
   // var desiredCountry = countryGDPs[d.properties.name];
   // var numCables = countryToCableID[d.properties.name];
   // if (desiredCountry != null && numCables != null && numCables.length != 0) {
@@ -208,7 +207,7 @@ function generateWorldMap() {
             d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
-            showPopupWithLatency(d.properties.name);
+            showPopupWithLatency(d.properties.name, d.HDI, "HDI");
         })
         .on("mousemove",function(d){
           trackMouseMovements();
@@ -426,7 +425,7 @@ function fetchLandingPoints() {
         .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id)
             .style("stroke-width", 4/k);
-          showPopupWithLatency(cable.name);
+          showPopupWithLatency(cable.name, cable.cost, "Cable Cost ($)");
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
@@ -462,11 +461,12 @@ function trackMouseMovements() {
     .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
 }
 
-function showPopupWithLatency(text) {
+function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
   var coordinates = d3.mouse(svg[0][0]);
   toolTip = setTimeout(function () {
     var popup = d3.select("#popup");
-    popup.append("text").text(text);
+    popup.append("p").text(text);
+    popup.append("p").text(secondaryTextLabel + ": " + secondaryText);
     popup.style("display", "block");
     var introHeight = d3.select("#intro")[0][0].clientHeight;
     var headerHeight = d3.select("#header-div")[0][0].clientHeight;
