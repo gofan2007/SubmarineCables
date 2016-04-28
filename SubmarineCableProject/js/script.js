@@ -21,9 +21,13 @@ var projection = d3.geo.mercator()
 var projection2 = d3.geo.mercator()
   .translate([(width * 1.5) , (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
+var projection3 = d3.geo.mercator()
+  .translate([(-width / 2 ), (3 * height) / 4.5])
+  .scale((width ) / 2 / Math.PI);
 
 var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
+var path3 = d3.geo.path().projection(projection3);
 
 var graphToggled = false;
 var mapColor = "#7FB800";
@@ -265,6 +269,22 @@ function generateWorldMap() {
         .on("mouseout", function(d) {
             d3.select("#country" + d.id).style("fill", mapColor);
         });
+       g.selectAll("map3")
+        .data(countries)
+        .enter().append("path")
+        .attr("d", path3)
+        .attr("class","map3")
+        .style("fill", mapColor)
+        .style("stroke", "#888")
+        .style("fill-opacity", function(d){ return calcOpacity(d) })
+        .attr("id", function(d){ return "country"+d.id; })
+        .on("click", function(d){ worldMapClicked(d); })
+        .on("mouseover", function(d) {
+            d3.select("#country" + d.id).style("fill", mapHoverColor);
+        })
+        .on("mouseout", function(d) {
+            d3.select("#country" + d.id).style("fill", mapColor);
+        });
   });
 };
 
@@ -385,19 +405,12 @@ function fetchLandingPoints() {
     var color = "black";
     var opacity = 0;
     globalCables.forEach(function(cable) {
-      // if (cable.year < 2010) {
-      //   color = "orange";
-      //   opacity = 0.8;
-      // } else {
-      //   color = "#00B24C";
-      //   opacity = 0.7;
-      // }
-
       color = calcCableColor(cable);
       var coordToStringResult = coordToString(cable.coordinates, projection);
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
+      var coordToStringResult3 = coordToString(cable.coordinates, projection3);
       console.log(k); 
-      (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
+      (coordToStringResult.coords).concat(coordToStringResult2.coords).concat(coordToStringResult3.coords).forEach(function(paths) {
         g.append("polyline")
         .style("fill", "none")
         .style("stroke", color)
@@ -444,7 +457,7 @@ function fetchLandingPoints() {
           if (selectedCableClass != "") {
             d3.selectAll(selectedCableClass).style("stroke-width", 2/k);
           }
-          d3.selectAll("polyline").style("stroke-width", 2);
+          d3.selectAll("polyline").style("stroke-width", 2/k);
           selectedCableClass = "#cable" + cable.cable_id;
           d3.selectAll(selectedCableClass)
             .style("stroke-width", 8/k) 
@@ -476,7 +489,6 @@ function fetchLandingPoints() {
           trackMouseMovements();
         });
       });
-      var coordToStringResult2 = coordToString(cable.coordinates, projection2);
     });
     fetchHDI();
   });
