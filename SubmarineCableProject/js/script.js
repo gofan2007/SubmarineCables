@@ -49,7 +49,7 @@ var globalLandings;
 var cableIDtoCable = {};
 var countryToCableID = {};
 var cableIDToLandings = {};
-var opacityScale = d3.scale.linear().domain([0.35, 1]).range([0, 1]);
+var opacityScale = d3.scale.linear().domain([0, 3]).range([0.1, 1]);
 var countryGDPs = {};
 
 var hdiData;
@@ -81,38 +81,38 @@ function fetchGDPs() {
   });
 }
 
-function fetchHDI() {
-  d3.json("data/hdi.json", function(error1, userData) {
-    if (error1) {
-      return console.log(error1);
-    } else {
-      hdiData = userData;
-      generateWorldMap();
-    }
-  });
-}
+// function fetchHDI() {
+//   d3.json("data/hdi.json", function(error1, userData) {
+//     if (error1) {
+//       return console.log(error1);
+//     } else {
+//       hdiData = userData;
+//       generateWorldMap();
+//     }
+//   });
+// }
 
 function calcOpacity(d){
-  var countryQOL = hdiData.find(function(data) {
-    return data.Location == d.properties.name;
-  });
-  if (countryQOL == null) {
-    d["HDI"] = 0;
-  } else {
-    d["HDI"] = countryQOL["Human Development Index (HDI)"];
-  }
-  return opacityScale(d["HDI"]);
-  // var desiredCountry = countryGDPs[d.properties.name];
-  // var numCables = countryToCableID[d.properties.name];
-  // if (desiredCountry != null && numCables != null && numCables.length != 0) {
-  //   var earliestGDP = findEarliestGDP(desiredCountry);
-  //   var latestGDP = findLatestGDP(desiredCountry);
-  //   var percentChange = (latestGDP - earliestGDP) / earliestGDP;
-  //   //console.log(d.properties.name + " " + percentChange / numCables.length);
-  //   return opacityScale(percentChange / numCables.length);
+  // var countryQOL = hdiData.find(function(data) {
+  //   return data.Location == d.properties.name;
+  // });
+  // if (countryQOL == null) {
+  //   d["HDI"] = 0;
   // } else {
-  //   return 0;
+  //   d["HDI"] = countryQOL["Human Development Index (HDI)"];
   // }
+  // return opacityScale(d["HDI"]);
+  var desiredCountry = countryGDPs[d.properties.name];
+  var numCables = countryToCableID[d.properties.name];
+  if (desiredCountry != null) {
+    var earliestGDP = findEarliestGDP(desiredCountry);
+    var latestGDP = findLatestGDP(desiredCountry);
+    d.percentChange = (latestGDP - earliestGDP) / earliestGDP;
+    //console.log(d.properties.name + " " + percentChange / numCables.length);
+    return opacityScale(d.percentChange);
+  } else {
+    return 0;
+  }
 }
 
 function calcCableColor(c){
@@ -186,11 +186,9 @@ function worldMapClicked(c, isSingleClick) {
 
   if (c.properties.name == "France") {
     k = 7;
-    console.log("HARDCODING FRANCE");
   } else if (c.properties.name == "United States") {
     k = 1.5;
   }
-  console.log("k is " + k);
   var countryPath = d3.selectAll("#country" + c.id)[0][0];
   g.transition().duration(800)
    .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
@@ -233,9 +231,9 @@ function generateWorldMap() {
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
           if (d.HDI == 0) {
-            showPopupWithLatency(d.properties.name, "NA", "HDI");
+            showPopupWithLatency(d.properties.name, "NA", "GDP per capita growth: ");
           } else {
-            showPopupWithLatency(d.properties.name, d.HDI, "HDI");
+            showPopupWithLatency(d.properties.name, (d.percentChange * 100).toFixed(2) + "%", "GDP per capita growth: ");
           }
         })
         .on("mousemove",function(d){
@@ -409,7 +407,6 @@ function fetchLandingPoints() {
       var coordToStringResult = coordToString(cable.coordinates, projection);
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
       var coordToStringResult3 = coordToString(cable.coordinates, projection3);
-      console.log(k); 
       (coordToStringResult.coords).concat(coordToStringResult2.coords).concat(coordToStringResult3.coords).forEach(function(paths) {
         g.append("polyline")
         .style("fill", "none")
@@ -468,7 +465,7 @@ function fetchLandingPoints() {
           d3.selectAll("#cable" + cable.cable_id)
             .style("stroke-width", 8/k);
           if (cable.cost == 0) {
-            showPopupWithLatency(cable.name, "NA", "Cable Cost ($)");
+            showPopupWithLatency(cable.name, "NA", "Cable Cost: $");
           } else {
             showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost ($)");
           }
@@ -490,7 +487,7 @@ function fetchLandingPoints() {
         });
       });
     });
-    fetchHDI();
+    generateWorldMap();
   });
 }
 
@@ -510,7 +507,7 @@ function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
   toolTip = setTimeout(function () {
     var popup = d3.select("#popup");
     popup.append("p").text(text);
-    popup.append("p").text(secondaryTextLabel + ": " + secondaryText);
+    popup.append("p").text(secondaryTextLabel + secondaryText);
     popup.style("display", "block");
     var introHeight = d3.select("#intro")[0][0].clientHeight;
     var headerHeight = d3.select("#header-div")[0][0].clientHeight;
