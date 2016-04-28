@@ -416,14 +416,18 @@ function fetchLandingPoints() {
         .attr("points",paths)
         .attr("id","cable" + cable.cable_id)
         .on("click", function() {
+          k = coordToStringResult.min;
           var[x,y] = coordToStringResult.center;
           //try to hard code to make this cable show ACE
-          if(cable.cable_id ==1629){y=y*0.85;k=k/1.8}
+          if (cable.cable_id == 1629) {
+            y = y * 0.85;
+            k = k / 1.8;
+          }
+          resizeCables(k);
           g.transition().duration(800)
-
-          .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
+          .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + -x + "," + -y + ")");
           var cableLandingPoints = landingPoints.filter(function(d){ return d.cable_id == cable.cable_id });
-          d3.selectAll("circle").remove();
+          d3.selectAll("circle").remove();  
           cableLandingPoints.forEach(function(d){
             var coord1 = projection(d.coordinates);
             var coord2 = projection2(d.coordinates);
@@ -467,7 +471,7 @@ function fetchLandingPoints() {
           if (cable.cost == 0) {
             showPopupWithLatency(cable.name, "NA", "Cable Cost: $");
           } else {
-            showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost ($)");
+            showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost: $");
           }
         })
         .on("mouseout", function() {

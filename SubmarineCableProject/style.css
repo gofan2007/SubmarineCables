@@ -80,7 +80,7 @@ div#header-div {
     margin:0px;
     background: white;
     width: 100%;
-    height: 30%;
+    height: 20%;
     background-image: url('images/fiberoptic.png');
     background-position: bottom left;
     background-repeat: no-repeat;
@@ -158,12 +158,12 @@ div#paragraph {
     padding-right: 5px;
     height: auto;
     width: auto;
-    background-color: #f2f2f2;
+    background-color: orange;
     display: none; 
     position: absolute;
     pointer-events:none;
     border-radius: 5px;
-    opacity: 0.9;
+    opacity: 1;
     color: black;
     font-family: 'Archivo Narrow', sans-serif;
     font-weight: 100;
@@ -198,4 +198,8 @@ div#paragraph {
 
 #close-button:hover {
     transform: scale(0.9, 0.9);
+}
+
+p.explanation {
+    font-size: 20px;
 }
