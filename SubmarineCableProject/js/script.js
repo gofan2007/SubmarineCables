@@ -1,7 +1,7 @@
 //Global Variables
 var width = window.innerWidth;
 var height = window.innerHeight;
-var zoom = 1;
+var zoomedIn = false;
 var svg = d3.select("#worldSVG")
   .attr("width",  width * 1.5)
   .attr("height", height)
@@ -9,26 +9,10 @@ var svg = d3.select("#worldSVG")
 
 var transparentOverlay = d3.select("#transparentOverlay")
   .on("click", function() {
-    var that = this;
-    setTimeout(function() {
-      var dblclick = parseInt($(that).data('double'), 10);
-      if (dblclick > 0) {
-          $(that).data('double', dblclick-1);
-      } else {
-        if (graphToggled) {
-          toggleGraphDiv();
-        }
-        resetMap();
-      }
-    }, 250);
-  })
-  .on("dblclick", function() {
-    $(this).data('double', 2);
-    var coordinates = d3.mouse(svg[0][0]);
-    zoom *= 2;
-    g.transition().duration(800)
-   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + zoom + 
-      ")translate(" + -(coordinates[0] + width / 2) / zoom + "," + -(coordinates[1] + height / 2) / zoom + ")");
+    if (graphToggled) {
+      toggleGraphDiv();
+    }
+    resetMap();
   });
 
 var projection = d3.geo.mercator()
@@ -37,11 +21,7 @@ var projection = d3.geo.mercator()
 var projection2 = d3.geo.mercator()
   .translate([(width * 1.5) , (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
-var projection3 = d3.geo.mercator()
-  .translate([(-width / 2 ), (3 * height) / 4.5])
-  .scale((width ) / 2 / Math.PI);
 
-var path3 = d3.geo.path().projection(projection3);
 var path = d3.geo.path().projection(projection);
 var path2 = d3.geo.path().projection(projection2);
 
@@ -73,17 +53,18 @@ var hdiData;
 var toolTip;
 var toolTipOffset = -5;
 var selectedCableClass = "";
+var k = 1;
 
 fetchGDPs();
 
 function resetMap(){
   console.log("resetting");
-    g.transition().duration(500).attr("transform", "translate(" + 0 + "," + 0 + ")");
-    d3.selectAll(".map1").style("fill", mapColor);
-    d3.selectAll("circle").remove();
-    d3.selectAll("polyline").style("stroke-width", 1);
-    selectedCableClass = "";
-    zoom = 1;
+  g.transition().duration(500).attr("transform", "translate(" + 0 + "," + 0 + ")");
+  d3.selectAll(".map1").style("fill", mapColor);
+  d3.selectAll("circle").remove();
+  d3.selectAll("polyline").style("stroke-width", 2);
+  selectedCableClass = "";
+  k = 1;
 }
 
 function fetchGDPs() {
@@ -116,7 +97,6 @@ function calcOpacity(d){
   } else {
     d["HDI"] = countryQOL["Human Development Index (HDI)"];
   }
-  console.log(d["HDI"]);
   return opacityScale(d["HDI"]);
   // var desiredCountry = countryGDPs[d.properties.name];
   // var numCables = countryToCableID[d.properties.name];
@@ -198,21 +178,28 @@ function worldMapClicked(c, isSingleClick) {
     k = 1;
   } else if (k < 1.5) {
     k = 1.8;
-  } else {
-    k = k;
-  }
+  } 
 
   if (c.properties.name == "France") {
     k = 7;
+    console.log("HARDCODING FRANCE");
   } else if (c.properties.name == "United States") {
     k = 1.5;
   }
-
+  console.log("k is " + k);
   var countryPath = d3.selectAll("#country" + c.id)[0][0];
   g.transition().duration(800)
    .attr("transform", "translate(" + width / 4 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")");
+  resizeCables(k);
   generateCountryGraph(c.properties.name);
 };
+
+function resizeCables(zoom) {
+  console.log("resizing cables");
+  console.log(zoom);
+  k = zoom;
+  d3.selectAll("polyline").style("stroke-width", 2 / zoom);
+}
 
 var introHeight = d3.select("#intro")[0][0].clientHeight;
 var headerHeight = d3.select("#header-div")[0][0].clientHeight;
@@ -238,10 +225,14 @@ function generateWorldMap() {
         .attr("id", function(d){return "country" + d.id;})
         .on("click", function(d){ worldMapClicked(d) })
         .on("mouseover", function(d) {
-            d3.select("#country" + d.id)
+          d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
+          if (d.HDI == 0) {
+            showPopupWithLatency(d.properties.name, "NA", "HDI");
+          } else {
             showPopupWithLatency(d.properties.name, d.HDI, "HDI");
+          }
         })
         .on("mousemove",function(d){
           trackMouseMovements();
@@ -263,22 +254,6 @@ function generateWorldMap() {
         .enter().append("path")
         .attr("d", path2)
         .attr("class","map2")
-        .style("fill", mapColor)
-        .style("stroke", "#888")
-        .style("fill-opacity", function(d){ return calcOpacity(d) })
-        .attr("id", function(d){ return "country"+d.id; })
-        .on("click", function(d){ worldMapClicked(d); })
-        .on("mouseover", function(d) {
-            d3.select("#country" + d.id).style("fill", mapHoverColor);
-        })
-        .on("mouseout", function(d) {
-            d3.select("#country" + d.id).style("fill", mapColor);
-        });
-      g.selectAll("map3")
-        .data(countries)
-        .enter().append("path")
-        .attr("d", path3)
-        .attr("class","map3")
         .style("fill", mapColor)
         .style("stroke", "#888")
         .style("fill-opacity", function(d){ return calcOpacity(d) })
@@ -421,22 +396,23 @@ function fetchLandingPoints() {
       color = calcCableColor(cable);
       var coordToStringResult = coordToString(cable.coordinates, projection);
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
-      var coordToStringResult3 = coordToString(cable.coordinates, projection3);
-      var k = coordToStringResult.min;
-      (coordToStringResult.coords).concat(coordToStringResult2.coords).concat(coordToStringResult3.coords).forEach(function(paths) {
+      console.log(k); 
+      (coordToStringResult.coords).concat(coordToStringResult2.coords).forEach(function(paths) {
         g.append("polyline")
-        .attr("style","fill:none;stroke:" + color + ";stroke-width:1; stroke-opacity:0.8")
+        .style("fill", "none")
+        .style("stroke", color)
+        .style("stroke-width", 2/k)
+        .style("stroke-opacity", 0.8)
         .attr("points",paths)
         .attr("id","cable" + cable.cable_id)
         .on("click", function() {
-         // var k = coordToStringResult.min;
           var[x,y] = coordToStringResult.center;
           //try to hard code to make this cable show ACE
           if(cable.cable_id ==1629){y=y*0.85;k=k/1.8}
           g.transition().duration(800)
 
           .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + + -x + "," + -y + ")");
-          var cableLandingPoints = landingPoints.filter(function(d){return d.cable_id == cable.cable_id});
+          var cableLandingPoints = landingPoints.filter(function(d){ return d.cable_id == cable.cable_id });
           d3.selectAll("circle").remove();
           cableLandingPoints.forEach(function(d){
             var coord1 = projection(d.coordinates);
@@ -451,8 +427,8 @@ function fetchLandingPoints() {
               d3.select("#popup").style("display","none");
              });
             g.append("circle")
-             .attr("cx",coord2[0])
-             .attr("cy",coord2[1])
+             .attr("cx", coord2[0])
+             .attr("cy", coord2[1])
              .attr("r", 3)
              .on("mouseover",function() {
                 showPopupWithLatency(d.name);
@@ -466,28 +442,31 @@ function fetchLandingPoints() {
             toggleGraphDiv();
           }
           if (selectedCableClass != "") {
-            d3.selectAll(selectedCableClass).style("stroke-width", 1);
+            d3.selectAll(selectedCableClass).style("stroke-width", 2/k);
           }
-          d3.selectAll("polyline").style("stroke-width",1/k);
+          d3.selectAll("polyline").style("stroke-width", 2);
           selectedCableClass = "#cable" + cable.cable_id;
           d3.selectAll(selectedCableClass)
-            .style("stroke-width", 4/k)
-            .style("stroke-opacity",1);
+            .style("stroke-width", 8/k) 
+            .style("stroke-opacity", 1);
           generateCableGraph(cable);
         })
         .on("mouseover", function() {
           d3.selectAll("#cable" + cable.cable_id)
-            .style("stroke-width", 4/k);
-          showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost ($)");
+            .style("stroke-width", 8/k);
+          if (cable.cost == 0) {
+            showPopupWithLatency(cable.name, "NA", "Cable Cost ($)");
+          } else {
+            showPopupWithLatency(cable.name, cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "Cable Cost ($)");
+          }
         })
         .on("mouseout", function() {
           clearInterval(toolTip);
           var cableClass = "#cable" + cable.cable_id;
           if (cableClass != selectedCableClass) {
             d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", 1/k)
-              .style("stroke-opacity",0.8);
-
+              .style("stroke-width", 2/k)
+              .style("stroke-opacity", 0.8);
           }
           var popup = d3.select("#popup");
           popup.selectAll("*").remove();
@@ -498,7 +477,6 @@ function fetchLandingPoints() {
         });
       });
       var coordToStringResult2 = coordToString(cable.coordinates, projection2);
-      var coordToStringResult3 = coordToString(cable.coordinates, projection3);
     });
     fetchHDI();
   });
