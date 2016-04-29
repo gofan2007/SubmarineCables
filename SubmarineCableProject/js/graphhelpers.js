@@ -302,8 +302,13 @@ function generateCableGraph(cable) {
     .style("alignment-baseline", "center")
     .style("font-size", 30)
     .style("font-weight", 100);
+    var cost = cable.cost.toString();
+    if(cost == 0)
+    {
+      cost = "N/A";
+    }
   graphSVG.append("text")
-    .text("Cost: $" + cable.cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+    .text("Cost: $" + cost.replace(/\B(?=(\d{3})+(?!\d))/g, ","))
     .attr("x", "50%")
     .attr("y", "11%")
     .style("fill", "black")

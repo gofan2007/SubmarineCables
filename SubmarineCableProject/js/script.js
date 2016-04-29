@@ -1,6 +1,6 @@
 //Global Variables
 var width = window.innerWidth;
-var height = window.innerHeight;
+var height = window.innerHeight*.9;
 var zoomedIn = false;
 var svg = d3.select("#worldSVG")
   .attr("width",  width * 1.5)
@@ -182,7 +182,7 @@ function worldMapClicked(c, isSingleClick) {
     k = 1;
   } else if (k < 1.5) {
     k = 1.8;
-  } 
+  }
 
   if (c.properties.name == "France") {
     k = 7;
@@ -427,7 +427,7 @@ function fetchLandingPoints() {
           g.transition().duration(800)
           .attr("transform", "translate(" + width/4 + "," + height / 2 + ") scale(" + k + ")translate(" + -x + "," + -y + ")");
           var cableLandingPoints = landingPoints.filter(function(d){ return d.cable_id == cable.cable_id });
-          d3.selectAll("circle").remove();  
+          d3.selectAll("circle").remove();
           cableLandingPoints.forEach(function(d){
             var coord1 = projection(d.coordinates);
             var coord2 = projection2(d.coordinates);
@@ -461,7 +461,7 @@ function fetchLandingPoints() {
           d3.selectAll("polyline").style("stroke-width", 2/k);
           selectedCableClass = "#cable" + cable.cable_id;
           d3.selectAll(selectedCableClass)
-            .style("stroke-width", 8/k) 
+            .style("stroke-width", 8/k)
             .style("stroke-opacity", 1);
           generateCableGraph(cable);
         })
@@ -515,5 +515,5 @@ function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
     popup.style("display", "block");
     var introHeight = d3.select("#intro")[0][0].clientHeight;
     var headerHeight = d3.select("#header-div")[0][0].clientHeight;
-  }, 500);
+  }, 250);
 }
