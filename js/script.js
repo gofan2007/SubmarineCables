@@ -56,7 +56,8 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
-var toolTipOffset = 30;
+var toolTipOffsetX = 20;
+var toolTipOffsetY = 60;
 var selectedCableClass = "";
 var k = 1; //zoom factor
 
@@ -467,8 +468,8 @@ function toggleGraphDiv() {
 
 function trackMouseMovements() {
   var coordinates = d3.mouse(svg[0][0]);
-  d3.select("#popup").style("left", coordinates[0] + toolTipOffset)
-    .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffset);
+  d3.select("#popup").style("left", coordinates[0] + toolTipOffsetX)
+    .style("top", introHeight + headerHeight + coordinates[1] + toolTipOffsetY);
 }
 
 function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
