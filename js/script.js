@@ -56,7 +56,7 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
-var toolTipOffset = -40;
+var toolTipOffset = 0;
 var selectedCableClass = "";
 var k = 1; //zoom factor
 
