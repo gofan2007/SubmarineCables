@@ -56,7 +56,7 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
-var toolTipOffset = 0;
+var toolTipOffset = 30;
 var selectedCableClass = "";
 var k = 1; //zoom factor
 
@@ -170,8 +170,8 @@ function resizeCables(zoom) {
   d3.selectAll("polyline").style("stroke-width", 2 / zoom);
 }
 
-var introHeight = d3.select("#intro")[0][0].clientHeight;
-var headerHeight = d3.select("#header-div")[0][0].clientHeight;
+var introHeight = 430;
+var headerHeight = 155;
 
 function generateWorldMap() {
   d3.json("data/world-topo-min.json", function(error2, world) {
