@@ -200,7 +200,8 @@ function generateCableGraph(cable) {
   var xScale = d3.scale.linear().domain([1989, 2020]).range([xPadding, width / 2 - xPadding]);
   var yScale = d3.scale.linear().domain([0, maxGDP]).range([height - yPadding, yPadding]);
   var xAxis = d3.svg.axis().scale(xScale)
-    .orient("bottom");
+    .orient("bottom")
+    .tickFormat(d3.format("d"));
   var yAxis = d3.svg.axis().scale(yScale)
     .orient("left");
   graphSVG.append("g").attr("class", "axis")
