@@ -67,7 +67,6 @@ function generateCountryGraph(countryName) {
     key = nextKey;
     nextKey = nextDateString + " [YR" + nextDateString + "]";
     if (desiredCountry[key] != "..") {
-      //console.log(desiredCountry[key]);
       graphSVG.append("circle")
         .attr("cx", xScale(i))
         .attr("cy", yScale(desiredCountry[key]))
@@ -89,7 +88,6 @@ function generateCountryGraph(countryName) {
     var yearToCableNames = {};
     var seenCableIDs = {};
     countryToCableID[countryName].forEach(function(cableID) {
-      //console.log(cableIDtoCable[cableID].name);
       var year = cableIDtoCable[cableID].year;
       var name = cableIDtoCable[cableID].name;
       if (year != 0) {
@@ -223,7 +221,6 @@ function generateCableGraph(cable) {
         key = nextKey;
         nextKey = nextDateString + " [YR" + nextDateString + "]";
         if (desiredCountry[key] != "..") {
-          //console.log(desiredCountry[key]);
           graphSVG.append("circle")
             .attr("cx", xScale(i))
             .attr("cy", yScale(desiredCountry[key]))

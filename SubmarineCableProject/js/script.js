@@ -62,7 +62,6 @@ var k = 1;
 fetchGDPs();
 
 function resetMap(){
-  console.log("resetting");
   g.transition().duration(500).attr("transform", "translate(" + 0 + "," + 0 + ")");
   d3.selectAll(".map1").style("fill", mapColor);
   d3.selectAll("circle").remove();
@@ -81,34 +80,13 @@ function fetchGDPs() {
   });
 }
 
-// function fetchHDI() {
-//   d3.json("data/hdi.json", function(error1, userData) {
-//     if (error1) {
-//       return console.log(error1);
-//     } else {
-//       hdiData = userData;
-//       generateWorldMap();
-//     }
-//   });
-// }
-
-function calcOpacity(d){
-  // var countryQOL = hdiData.find(function(data) {
-  //   return data.Location == d.properties.name;
-  // });
-  // if (countryQOL == null) {
-  //   d["HDI"] = 0;
-  // } else {
-  //   d["HDI"] = countryQOL["Human Development Index (HDI)"];
-  // }
-  // return opacityScale(d["HDI"]);
+function calcOpacity(d) {
   var desiredCountry = countryGDPs[d.properties.name];
   var numCables = countryToCableID[d.properties.name];
   if (desiredCountry != null) {
     var earliestGDP = findEarliestGDP(desiredCountry);
     var latestGDP = findLatestGDP(desiredCountry);
     d.percentChange = (latestGDP - earliestGDP) / earliestGDP;
-    //console.log(d.properties.name + " " + percentChange / numCables.length);
     return opacityScale(d.percentChange);
   } else {
     return 0;
@@ -116,16 +94,6 @@ function calcOpacity(d){
 }
 
 function calcCableColor(c){
-  //var colorScale = d3.scale.log().domain([1, 2]).range(["#feb24c","#f03b20"]);
-  // if(c.cost/4000000000 < 0.3) {
-  //   return ("#525252");
-  // } else if(c.cost/4000000000 < 0.6) {
-  //   return("#ec7014");
-  // }
-  // else {
-  //   return("#ae017e")
-  // }
-//  return colorScale(c.cost/4000000000 + 1);
   if(c.year < 2010) {
     return "orange";
   } else {
@@ -197,8 +165,6 @@ function worldMapClicked(c, isSingleClick) {
 };
 
 function resizeCables(zoom) {
-  console.log("resizing cables");
-  console.log(zoom);
   k = zoom;
   d3.selectAll("polyline").style("stroke-width", 2 / zoom);
 }
@@ -212,8 +178,6 @@ function generateWorldMap() {
       var countries = topojson.feature(world, world.objects.countries).features;
       var isMouseDown = false;
       svg.style("background", mapOceanColor);
-      // var introHeight = d3.select("#intro")[0][0].clientHeight;
-      // var headerHeight = d3.select("#header-div")[0][0].clientHeight;
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
