@@ -300,8 +300,7 @@ function generateCableGraph(cable) {
     .style("font-size", 30)
     .style("font-weight", 100);
     var cost = cable.cost.toString();
-    if(cost == 0)
-    {
+    if (cost == "0") {
       cost = "N/A";
     }
   graphSVG.append("text")

@@ -15,19 +15,20 @@ var transparentOverlay = d3.select("#transparentOverlay")
     resetMap();
   });
 
-var projection = d3.geo.mercator()
+//taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
+var projection = d3.geo.mercator() //center map
   .translate([width / 2, (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI);
-var projection2 = d3.geo.mercator()
+var projection2 = d3.geo.mercator() //right map
   .translate([(width * 1.5) , (3 * height) / 4.5])
-  .scale((width ) / 2 / Math.PI); // Line taken from Mike Bostock's Block 3757132 http://www.blocks.org/mbostock/3757132
-var projection3 = d3.geo.mercator()
+  .scale((width ) / 2 / Math.PI); 
+var projection3 = d3.geo.mercator() //left map
   .translate([(-width / 2 ), (3 * height) / 4.5])
   .scale((width ) / 2 / Math.PI);
 
-var path = d3.geo.path().projection(projection);
-var path2 = d3.geo.path().projection(projection2);
-var path3 = d3.geo.path().projection(projection3);
+var path = d3.geo.path().projection(projection); //center projection
+var path2 = d3.geo.path().projection(projection2); //left projection
+var path3 = d3.geo.path().projection(projection3); //right projection
 
 var graphToggled = false;
 var mapColor = "#7FB800";
@@ -55,9 +56,9 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
-var toolTipOffset = -5;
+var toolTipOffset = -40;
 var selectedCableClass = "";
-var k = 1;
+var k = 1; //zoom factor
 
 fetchGDPs();
 
@@ -188,14 +189,14 @@ function generateWorldMap() {
         .style("fill-opacity", function(d){
           return calcOpacity(d);
         })
-        .attr("id", function(d){return "country" + d.id;})
+        .attr("id", function(d){ return "country" + d.id; })
         .on("click", function(d){ worldMapClicked(d) })
         .on("mouseover", function(d) {
           d3.select("#country" + d.id)
             .style("fill", mapHoverColor)
             .style("fill-opacity", 1);
-          if (d.HDI == 0) {
-            showPopupWithLatency(d.properties.name, "NA", "GDP per capita growth: ");
+          if (d.percentChange == 0 || d.percentChange == null) {
+            showPopupWithLatency(d.properties.name, "N/A", "GDP per capita growth: ");
           } else {
             showPopupWithLatency(d.properties.name, (d.percentChange * 100).toFixed(2) + "%", "GDP per capita growth: ");
           }
