@@ -435,7 +435,7 @@ function fetchLandingPoints() {
              .attr("cx",coord1[0])
              .attr("cy",coord1[1])
              .attr("r", 3)
-             .on("mouseover",function(){ showPopupWithLatency(d.name) })
+             .on("mouseover",function(){ showPopupWithLatency(d.name, "", "") })
              .on("mouseout",function(){
               popup.selectAll("*").remove();
               d3.select("#popup").style("display","none");
