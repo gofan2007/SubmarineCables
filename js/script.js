@@ -61,6 +61,7 @@ var toolTipOffsetX = 20;
 var toolTipOffsetY = defaultOffset;
 var selectedCableClass = "";
 var k = 1; //zoom factor
+var rotation = 0;
 
 fetchGDPs();
 
@@ -446,7 +447,7 @@ function fetchLandingPoints() {
           var cableClass = "#cable" + cable.cable_id;
           if (cableClass != selectedCableClass) {
             d3.selectAll("#cable" + cable.cable_id)
-              .style("stroke-width", 2/k)
+              .style("stroke-width", 2 / k)
               .style("stroke-opacity", 0.8);
           }
           var popup = d3.select("#popup");
@@ -487,8 +488,8 @@ function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
 
 function legendToggle() {
   var dropdown = document.getElementById("legend-dropdown");
-  k += 180;
-  dropdown.style.transform = "rotatex(" + k + "deg)";
+  rotation += 180;
+  dropdown.style.transform = "rotatex(" + rotation + "deg)";
   dropdown.style.transitionDuration = "0.5s"
   if (toolTipOffsetY == defaultOffset) {
     toolTipOffsetY += introHeight;
@@ -496,4 +497,5 @@ function legendToggle() {
     toolTipOffsetY -= introHeight;
   }
   $("#legend").slideToggle("500");
+  resetMap();
 }
