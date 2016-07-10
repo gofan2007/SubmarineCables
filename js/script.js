@@ -32,7 +32,7 @@ var path3 = d3.geo.path().projection(projection3); //right projection
 
 var graphToggled = false;
 var mapColor = "#7FB800";
-var mapOceanColor = "white";
+var mapOceanColor = "#F2EDD8";
 var mapHoverColor = "#737373";
 var graphBackgroundColor = "#b3b3b3";
 var g = d3.select("#group");
@@ -56,8 +56,9 @@ var countryGDPs = {};
 var hdiData;
 
 var toolTip;
+var defaultOffset = -650;
 var toolTipOffsetX = 20;
-var toolTipOffsetY = 60;
+var toolTipOffsetY = defaultOffset;
 var selectedCableClass = "";
 var k = 1; //zoom factor
 
@@ -96,8 +97,8 @@ function calcOpacity(d) {
 }
 
 function calcCableColor(c){
-  if(c.year < 2010) {
-    return "orange";
+  if (c.year < 2010) {
+    return "#ff6600";
   } else {
     return "purple";
   }
@@ -171,8 +172,8 @@ function resizeCables(zoom) {
   d3.selectAll("polyline").style("stroke-width", 2 / zoom);
 }
 
-var introHeight = 430;
-var headerHeight = 155;
+var introHeight = 700;
+var headerHeight = 70;
 
 function generateWorldMap() {
   d3.json("data/world-topo-min.json", function(error2, world) {
@@ -183,8 +184,8 @@ function generateWorldMap() {
       g.selectAll("map1")
         .data(countries)
         .enter().append("path")
-        .attr("d",path)
-        .attr("class","map1")
+        .attr("d", path)
+        .attr("class", "map1")
         .style("fill", mapColor)
         .style("stroke", "#888")
         .style("fill-opacity", function(d){
@@ -482,4 +483,17 @@ function showPopupWithLatency(text, secondaryText, secondaryTextLabel) {
     var introHeight = d3.select("#intro")[0][0].clientHeight;
     var headerHeight = d3.select("#header-div")[0][0].clientHeight;
   }, 250);
+}
+
+function legendToggle() {
+  var dropdown = document.getElementById("legend-dropdown");
+  k += 180;
+  dropdown.style.transform = "rotatex(" + k + "deg)";
+  dropdown.style.transitionDuration = "0.5s"
+  if (toolTipOffsetY == defaultOffset) {
+    toolTipOffsetY += introHeight;
+  } else {
+    toolTipOffsetY -= introHeight;
+  }
+  $("#legend").slideToggle("500");
 }
