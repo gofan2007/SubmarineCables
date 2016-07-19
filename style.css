@@ -12,10 +12,12 @@ body {
 div {
     margin: auto;
     padding: auto;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 
 svg {
-    margin: 0;
+    margin-top: 7px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 
 h1 {
@@ -114,8 +116,7 @@ div#header-div {
 #intro {
     background-color: #e6e6e6;
     background-size: 100%;
-    margin-left: 0%;
-    margin-right: 0%;
+    margin-top: 7px;
     padding-top: 20px;
     padding-bottom: 30px;
     padding-right: 50px;
